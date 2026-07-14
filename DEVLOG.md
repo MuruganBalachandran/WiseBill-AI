@@ -22,3 +22,10 @@ before Day 2's implementation.
 **Plan for tomorrow:** Implement the audit engine as a pure TypeScript function against
 today's prose spec, wire the Express API skeleton, write the first 5 tests against the
 engine, get CI green for real (not just present).
+
+## Day 2 — 2026-07-14
+**Hours worked:** 4 hours
+**What I did:** Implemented Mongoose models for Audit and Lead, mapped PRICING_DATA constants exactly to PRICING_DATA.md, built the pure function auditEngine containing our core optimization rules (seat overkill, plan downgrade, tool substitution, and API vs subscription breakeven), set up Express routes for POST /api/audits, GET /api/audits/:slug, and POST /api/leads, and wrote 5 unit tests for the audit engine passing green in the Node.js native test runner.
+**What I learned:** TypeScript control-flow type narrowing can be strict when matching a narrowed string union against a broader enum type, solved by explicit string casting in comparisons.
+**Blockers / what I'm stuck on:** Resend email integration is pending local mock verification, which will be tackled in Day 3.
+**Plan for tomorrow:** Build the frontend client UI spend input form, persist state across page reloads using localStorage, and integrate the frontend with the API.

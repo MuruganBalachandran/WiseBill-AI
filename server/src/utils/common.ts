@@ -20,4 +20,12 @@ export const sendError = (res: Response, statusCode: number, message: string, er
     errors,
   });
 };
+export const generateSlug = (length: number = 10): string => {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
 // endregion
