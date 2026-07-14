@@ -115,7 +115,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
     );
   }
 
-  const { totalMonthlySavings, totalAnnualSavings, results, spendInputs } = audit;
+  const { totalMonthlySavings, totalAnnualSavings, results, spendInputs, aiSummary, aiSummaryFallbackUsed } = audit;
   const isHighSavings = totalMonthlySavings >= 500;
   const isOptimalStack = totalMonthlySavings < 100;
 
@@ -174,6 +174,29 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </p>
           </div>
         </div>
+
+        {/* AI Executive Summary Card */}
+        {aiSummary && (
+          <div className="p-8 rounded-3xl border border-zinc-200 bg-white dark:border-zinc-800/80 dark:bg-zinc-950/40 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full filter blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+            
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
+                <span className="flex items-center justify-center w-5 h-5 rounded bg-indigo-500/10 text-indigo-500 text-xs font-bold">✨</span>
+                AI Executive Summary
+              </h3>
+              {aiSummaryFallbackUsed && (
+                <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-100 dark:bg-zinc-850 px-2 py-0.5 rounded">
+                  Static Fallback
+                </span>
+              )}
+            </div>
+
+            <p className="text-sm leading-relaxed font-medium text-zinc-700 dark:text-zinc-300 relative z-10 italic">
+              "{aiSummary}"
+            </p>
+          </div>
+        )}
 
         {/* THRESHOLD CUSTOM CTA */}
         {isHighSavings ? (

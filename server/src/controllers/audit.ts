@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { HttpStatus } from '../constants/index.js';
 import { sendSuccess, sendError, generateSlug } from '../utils/index.js';
 import { Audit, Lead } from '../models/index.js';
-import { runAudit } from '../services/index.js';
+import { runAudit, generateAiSummary } from '../services/index.js';
 // endregion
 
 // region create audit
@@ -36,6 +36,16 @@ export const createAudit = async (req: Request, res: Response) => {
       isExistingSlug = await Audit.findOne({ publicSlug });
     }
 
+    // Run AI summary generation
+    const aiResult = await generateAiSummary({
+      teamSize,
+      primaryUseCase,
+      spendInputs,
+      results: auditEngineResult.results,
+      totalMonthlySavings: auditEngineResult.totalMonthlySavings,
+      totalAnnualSavings: auditEngineResult.totalAnnualSavings,
+    });
+
     // Save audit snapshot to database
     const newAudit = new Audit({
       publicSlug,
@@ -45,6 +55,8 @@ export const createAudit = async (req: Request, res: Response) => {
       results: auditEngineResult.results,
       totalMonthlySavings: auditEngineResult.totalMonthlySavings,
       totalAnnualSavings: auditEngineResult.totalAnnualSavings,
+      aiSummary: aiResult.summary,
+      aiSummaryFallbackUsed: aiResult.fallbackUsed,
       pricingSnapshotDate: new Date('2026-07-14'),
       leadId: null,
     });

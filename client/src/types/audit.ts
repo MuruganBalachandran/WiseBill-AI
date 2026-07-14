@@ -24,6 +24,8 @@ export interface IAudit {
   results: IAuditResult[];
   totalMonthlySavings: number;
   totalAnnualSavings: number;
+  aiSummary?: string;
+  aiSummaryFallbackUsed?: boolean;
   pricingSnapshotDate: string;
   createdAt?: string;
 }
