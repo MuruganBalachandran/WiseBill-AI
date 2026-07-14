@@ -63,3 +63,5 @@ export const createLead = async (payload: ILeadCreateRequest): Promise<ILead> =>
 
   return json.data;
 };
+export type { IAudit };
+

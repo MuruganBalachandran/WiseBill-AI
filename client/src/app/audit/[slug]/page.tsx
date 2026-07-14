@@ -2,7 +2,8 @@
 
 import React, { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuditBySlug, createLead, IAudit, IAuditResult } from '../../../services/audit';
+import { getAuditBySlug, createLead } from '../../../services/audit';
+import { IAudit, IAuditResult } from '../../../types/audit';
 
 const TOOL_NAMES: Record<string, string> = {
   cursor: 'Cursor',
