@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { HttpStatus } from '../constants/index.js';
 import { sendSuccess, sendError, generateSlug } from '../utils/index.js';
 import { Audit, Lead } from '../models/index.js';
-import { runAudit, generateAiSummary } from '../services/index.js';
+import { runAudit, generateAiSummary, insertLeadToD1, sendConfirmationEmail } from '../services/index.js';
 // endregion
 
 // region create audit
@@ -98,14 +98,22 @@ export const getAuditBySlug = async (req: Request, res: Response) => {
 // region create lead
 export const createLead = async (req: Request, res: Response) => {
   try {
-    const { auditId, email, companyName, role, teamSize } = req.body;
+    const { auditId, email, companyName, role, teamSize, website } = req.body;
+
+    // ── Abuse protection layer 2: Honeypot field ─────────────────────────────
+    // The `website` field is hidden in the UI (absolute-positioned, off-screen).
+    // Legitimate users never fill it. Bots do. Silently accept but don't persist.
+    if (website) {
+      // Return a fake success so bots don't know they were filtered
+      return sendSuccess(res, HttpStatus.CREATED, {}, 'Lead captured successfully');
+    }
 
     if (!auditId) {
       return sendError(res, HttpStatus.BAD_REQUEST, 'Audit ID is required.');
     }
 
-    if (!email) {
-      return sendError(res, HttpStatus.BAD_REQUEST, 'Email address is required.');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return sendError(res, HttpStatus.BAD_REQUEST, 'A valid email address is required.');
     }
 
     // Verify audit exists
@@ -114,7 +122,7 @@ export const createLead = async (req: Request, res: Response) => {
       return sendError(res, HttpStatus.NOT_FOUND, 'Associated audit not found.');
     }
 
-    // Create lead
+    // ── Save to MongoDB (source of truth) ────────────────────────────────────
     const newLead = new Lead({
       auditId,
       email,
@@ -130,7 +138,34 @@ export const createLead = async (req: Request, res: Response) => {
     associatedAudit.leadId = savedLead._id as any;
     await associatedAudit.save();
 
-    // TODO: Send transactional email (Resend) - Day 3/4 feature
+    // ── Mirror to Cloudflare D1 (non-blocking) ────────────────────────────────
+    // Fires and forgets — failure does not affect the response
+    insertLeadToD1({
+      id: (savedLead._id as any).toString(),
+      auditId,
+      email,
+      companyName: companyName ?? null,
+      role: role ?? null,
+      teamSize: teamSize ?? null,
+      consentedAt: (savedLead.consentedAt ?? new Date()).toISOString(),
+      emailSent: false,
+    }).catch(err => console.error('[D1] Background insert failed:', err));
+
+    // ── Send transactional confirmation email via Resend (non-blocking) ───────
+    const isHighSavings = associatedAudit.totalMonthlySavings >= 500;
+    sendConfirmationEmail({
+      to: email,
+      auditSlug: associatedAudit.publicSlug,
+      companyName: companyName ?? null,
+      totalMonthlySavings: associatedAudit.totalMonthlySavings,
+      totalAnnualSavings: associatedAudit.totalAnnualSavings,
+      isHighSavings,
+    }).then(sent => {
+      if (sent) {
+        // Update emailSent flag asynchronously
+        Lead.findByIdAndUpdate(savedLead._id, { emailSent: true }).catch(console.error);
+      }
+    }).catch(err => console.error('[Resend] Background email failed:', err));
 
     return sendSuccess(res, HttpStatus.CREATED, savedLead, 'Lead captured successfully');
   } catch (error) {

@@ -34,6 +34,7 @@ export interface ILeadCreateRequest {
   companyName?: string;
   role?: string;
   teamSize?: number;
+  website?: string; // Honeypot field — must be empty for legitimate submissions
 }
 
 export interface ILead {

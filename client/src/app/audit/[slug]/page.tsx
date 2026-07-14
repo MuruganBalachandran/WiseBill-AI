@@ -36,6 +36,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   const [email, setEmail] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [role, setRole] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // Honeypot: legitimate users never fill this
   const [submittingLead, setSubmittingLead] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
@@ -71,6 +72,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
         companyName: companyName || undefined,
         role: role || undefined,
         teamSize: audit.teamSize,
+        website: honeypot, // Honeypot — silently sent; non-empty value triggers server-side rejection
       });
       setLeadSuccess(true);
       setEmail('');
@@ -223,6 +225,17 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
+                  {/* Honeypot — hidden from real users, filled by bots, rejected server-side */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={honeypot}
+                    onChange={e => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    autoComplete="off"
+                    style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }}
+                  />
                   <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400">Contact Techvruk Team</h4>
                   <div>
                     <input
@@ -286,6 +299,8 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
+                  {/* Honeypot — invisible to real users */}
+                  <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex={-1} aria-hidden="true" autoComplete="off" style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} />
                   <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-50">Stay Optimized</h4>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">Receive alerts if tool prices drift or new optimization strategies apply to your stack.</p>
                   <div>
@@ -334,6 +349,8 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
+                  {/* Honeypot — invisible to real users */}
+                  <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex={-1} aria-hidden="true" autoComplete="off" style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} />
                   <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400">Download Custom Audit PDF</h4>
                   <div>
                     <input

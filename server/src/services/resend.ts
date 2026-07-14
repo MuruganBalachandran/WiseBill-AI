@@ -1,0 +1,161 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+interface SendEmailOptions {
+  to: string;
+  auditSlug: string;
+  companyName?: string | null;
+  totalMonthlySavings: number;
+  totalAnnualSavings: number;
+  isHighSavings: boolean;
+}
+
+/**
+ * Sends a transactional confirmation email via the Resend REST API.
+ * Requires RESEND_API_KEY env var.
+ * Failures are logged but do NOT throw.
+ *
+ * @returns true if email was sent successfully, false otherwise
+ */
+export const sendConfirmationEmail = async (opts: SendEmailOptions): Promise<boolean> => {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    console.warn('[Resend] RESEND_API_KEY not configured. Skipping email send.');
+    return false;
+  }
+
+  const {
+    to,
+    auditSlug,
+    companyName,
+    totalMonthlySavings,
+    totalAnnualSavings,
+    isHighSavings,
+  } = opts;
+
+  const auditUrl = `${process.env.CLIENT_URL ?? 'http://localhost:3000'}/audit/${auditSlug}`;
+  const greeting = companyName ? `Hi ${companyName} team,` : 'Hi there,';
+
+  const highSavingsNote = isHighSavings
+    ? `<p style="background:#eef2ff;border-left:3px solid #6366f1;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;color:#4338ca;">
+        <strong>⚡ High Savings Alert:</strong> Your stack shows <strong>$${totalMonthlySavings.toFixed(2)}/month</strong> in optimization opportunities. 
+        Our team at <strong>Techvruk</strong> will review your audit and reach out within 24 hours to discuss enterprise licensing 
+        and volume discounts your team can capture immediately.
+      </p>`
+    : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Your WiseBill AI Audit is Ready</title></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;max-width:600px;">
+        
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#6366f1,#7c3aed);padding:32px 40px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="color:#fff;font-size:22px;font-weight:800;letter-spacing:-0.5px;">
+                WiseBill <span style="font-weight:400;opacity:0.8;">AI</span>
+              </td>
+              <td align="right" style="color:#c7d2fe;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
+                SaaS Spend Audit
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:40px;">
+          <p style="margin:0 0 16px;font-size:16px;color:#0f172a;">${greeting}</p>
+          <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.6;">
+            Your personalized <strong>WiseBill AI SaaS spend audit</strong> is ready. We've analyzed your tool stack and generated optimization recommendations tailored to your team.
+          </p>
+
+          <!-- Savings Summary -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:12px;overflow:hidden;margin-bottom:24px;">
+            <tr>
+              <td width="50%" style="padding:20px 24px;border-right:1px solid #e2e8f0;">
+                <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Monthly Savings</p>
+                <p style="margin:0;font-size:28px;font-weight:800;color:#6366f1;font-family:monospace;">$${totalMonthlySavings.toFixed(2)}</p>
+              </td>
+              <td width="50%" style="padding:20px 24px;">
+                <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Annual Savings</p>
+                <p style="margin:0;font-size:28px;font-weight:800;color:#10b981;font-family:monospace;">$${totalAnnualSavings.toFixed(2)}</p>
+              </td>
+            </tr>
+          </table>
+
+          ${highSavingsNote}
+
+          <!-- CTA Button -->
+          <table cellpadding="0" cellspacing="0" style="margin:28px 0;">
+            <tr>
+              <td style="background:#6366f1;border-radius:10px;">
+                <a href="${auditUrl}" style="display:inline-block;padding:14px 32px;color:#fff;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.3px;">
+                  View Full Audit Results →
+                </a>
+              </td>
+            </tr>
+          </table>
+
+          <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
+            Or copy this link: <a href="${auditUrl}" style="color:#6366f1;text-decoration:none;">${auditUrl}</a>
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:24px 40px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+          <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6;">
+            This audit was generated by WiseBill AI. Your data is stored securely and never shared. 
+            Reply to this email if you have questions about your audit results.
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const text = `${greeting}
+
+Your WiseBill AI SaaS spend audit is ready.
+
+Monthly Savings: $${totalMonthlySavings.toFixed(2)}
+Annual Savings:  $${totalAnnualSavings.toFixed(2)}
+
+${isHighSavings ? `⚡ High Savings Alert: Your stack shows $${totalMonthlySavings.toFixed(2)}/mo in opportunities. Techvruk will reach out within 24 hours.\n\n` : ''}View your full audit: ${auditUrl}`;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'WiseBill AI <audit@wisebill.ai>',
+        to: [to],
+        subject: `Your WiseBill AI Audit is Ready — $${totalMonthlySavings.toFixed(2)}/mo in savings identified`,
+        html,
+        text,
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error(`[Resend] Failed to send email: HTTP ${response.status} — ${err}`);
+      return false;
+    }
+
+    const data = await response.json() as any;
+    console.log(`[Resend] Email sent successfully. ID: ${data?.id}`);
+    return true;
+  } catch (err) {
+    console.error('[Resend] Network error sending email:', err);
+    return false;
+  }
+};
