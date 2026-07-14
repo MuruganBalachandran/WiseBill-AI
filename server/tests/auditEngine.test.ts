@@ -15,7 +15,7 @@ test('1. Overkill-seat detection: 1 seat on Cursor Teams Standard', () => {
   ];
 
   const result = runAudit(inputs, 1, 'coding');
-  const cursorResult = result.results.find(r => r.toolId === 'cursor');
+  const cursorResult = result.results.find(r => r.toolId === 'cursor')!;
 
   assert.ok(cursorResult);
   assert.strictEqual(cursorResult.recommendedAction, 'downgrade_plan');
@@ -36,7 +36,7 @@ test('2. Cheaper plan (same vendor): 2 seats on Claude Team', () => {
   ];
 
   const result = runAudit(inputs, 2, 'mixed');
-  const claudeResult = result.results.find(r => r.toolId === 'claude');
+  const claudeResult = result.results.find(r => r.toolId === 'claude')!;
 
   assert.ok(claudeResult);
   assert.strictEqual(claudeResult.recommendedAction, 'downgrade_plan');
@@ -64,7 +64,7 @@ test('3. Cheaper alternative tool: Overlapping Cursor + Copilot', () => {
   ];
 
   const result = runAudit(inputs, 1, 'coding');
-  const copilotResult = result.results.find(r => r.toolId === 'copilot');
+  const copilotResult = result.results.find(r => r.toolId === 'copilot')!;
 
   assert.ok(copilotResult);
   assert.strictEqual(copilotResult.recommendedAction, 'switch_tool');
@@ -92,8 +92,8 @@ test('4. Already-optimal: entire stack spend < $100', () => {
   ];
 
   const result = runAudit(inputs, 1, 'mixed');
-  const cursorResult = result.results.find(r => r.toolId === 'cursor');
-  const claudeResult = result.results.find(r => r.toolId === 'claude');
+  const cursorResult = result.results.find(r => r.toolId === 'cursor')!;
+  const claudeResult = result.results.find(r => r.toolId === 'claude')!;
 
   assert.ok(cursorResult);
   assert.ok(claudeResult);
@@ -114,7 +114,7 @@ test('5. API-direct vs subscription breakeven: high API usage', () => {
   ];
 
   const result = runAudit(inputs, 2, 'mixed');
-  const apiResult = result.results.find(r => r.toolId === 'anthropic_api');
+  const apiResult = result.results.find(r => r.toolId === 'anthropic_api')!;
 
   assert.ok(apiResult);
   assert.strictEqual(apiResult.recommendedAction, 'switch_tool');
