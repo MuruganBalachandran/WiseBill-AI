@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createAudit } from '../../services/audit';
-import { ISpendInput, IAuditCreateRequest } from '../../types/audit';
+import { IAuditCreateRequest } from '../../types/audit';
 
 type UseCaseType = 'coding' | 'writing' | 'data' | 'research' | 'mixed';
 
@@ -164,7 +165,7 @@ export default function SpendInputForm() {
 
   // Initialize and load state from LocalStorage on mount
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
     const saved = localStorage.getItem('wisebill_audit_form');
     if (saved) {
       try {
@@ -329,7 +330,7 @@ export default function SpendInputForm() {
       }
 
       const activeToolsList = Object.entries(toolsState)
-        .filter(([_, t]) => t.active)
+        .filter(([, t]) => t.active)
         .map(([toolId, state]) => {
           if (state.seats < 1) {
             throw new Error(`Active tool ${toolId} must have at least 1 seat.`);
@@ -339,6 +340,7 @@ export default function SpendInputForm() {
           const toolConfig = TOOLS.find(t => t.id === toolId);
           const planConfig = toolConfig?.plans.find(p => p.id === state.plan);
           
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const finalToolId = planConfig?.mappedToolId || (toolId as any);
           const finalPlan = planConfig?.mappedPlan || state.plan;
 

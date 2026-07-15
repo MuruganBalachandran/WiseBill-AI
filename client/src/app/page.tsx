@@ -31,13 +31,13 @@ export default function Home() {
           <div className="lg:col-span-8 space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
-                Optimize your team's <br />
+                Optimize your team&apos;s <br />
                 <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
                   AI subscription spend
                 </span>
               </h1>
               <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-xl">
-                Audit your company's usage of Cursor, Copilot, ChatGPT, Claude, and developer APIs to eliminate overlaps, recover wasted seats, and discover cheaper plan structures.
+                Audit your company&apos;s usage of Cursor, Copilot, ChatGPT, Claude, and developer APIs to eliminate overlaps, recover wasted seats, and discover cheaper plan structures.
               </p>
             </div>
 
@@ -63,7 +63,7 @@ export default function Home() {
                   <div>
                     <h4 className="text-sm font-bold text-zinc-950 dark:text-zinc-50">Overkill seat limits</h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                      Identify plans like Claude Team (5-seat min) or ChatGPT Business (2-seat min) paid for by smaller teams that don't meet the requirements.
+                      Identify plans like Claude Team (5-seat min) or ChatGPT Business (2-seat min) paid for by smaller teams that don&apos;t meet the requirements.
                     </p>
                   </div>
                 </li>
