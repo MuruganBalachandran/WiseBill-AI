@@ -40,6 +40,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   const [submittingLead, setSubmittingLead] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -199,6 +200,96 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </p>
           </div>
         )}
+
+        {/* ── VIRAL SHARE PANEL ─────────────────────────────────────────── */}
+        <div className="relative rounded-3xl overflow-hidden">
+          {/* Gradient border effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 rounded-3xl" />
+          <div className="relative m-[1.5px] rounded-[calc(1.5rem-1.5px)] bg-white dark:bg-zinc-950 p-8">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              
+              {/* Left: messaging */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🔗</span>
+                  <h3 className="font-extrabold text-zinc-900 dark:text-zinc-50 text-lg tracking-tight">
+                    Share your audit results
+                  </h3>
+                </div>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  This link shows savings numbers but never reveals your email or company name.
+                </p>
+              </div>
+
+              {/* Right: action cluster */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                {/* URL bar + copy */}
+                <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 flex-1 lg:w-80 min-w-0">
+                  <span className="text-zinc-400 shrink-0">🔗</span>
+                  <input
+                    id="audit-share-url"
+                    readOnly
+                    value={typeof window !== 'undefined' ? window.location.href : `/audit/${slug}`}
+                    className="bg-transparent text-xs font-mono text-zinc-600 dark:text-zinc-300 flex-1 min-w-0 outline-none truncate"
+                    onFocus={e => e.target.select()}
+                  />
+                </div>
+
+                {/* Copy button */}
+                <button
+                  id="audit-copy-btn"
+                  onClick={async () => {
+                    const url = typeof window !== 'undefined' ? window.location.href : '';
+                    await navigator.clipboard.writeText(url);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className={`shrink-0 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
+                    copied
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-95'
+                      : 'bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-900 text-white'
+                  }`}
+                >
+                  {copied ? '✓ Copied!' : 'Copy Link'}
+                </button>
+
+                {/* Twitter/X share */}
+                <a
+                  id="audit-share-twitter"
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                    totalMonthlySavings > 0
+                      ? `Just ran my AI stack through @WiseBillAI and found $${Math.round(totalMonthlySavings)}/mo in savings 🤯 Check yours (it's free):`
+                      : `My AI stack is already optimized — validated by @WiseBillAI 🧠 Check yours (it's free):`
+                  )}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition duration-150"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  Share on X
+                </a>
+
+                {/* Native share (mobile) */}
+                {typeof navigator !== 'undefined' && 'share' in navigator && (
+                  <button
+                    onClick={() => navigator.share({
+                      title: `WiseBill AI Audit — Save $${Math.round(totalMonthlySavings)}/mo`,
+                      text: totalMonthlySavings > 0
+                        ? `I just found $${Math.round(totalMonthlySavings)}/mo in AI savings with WiseBill AI. Check yours:`
+                        : 'My AI stack is optimized — verified by WiseBill AI. Check yours:',
+                      url: window.location.href,
+                    })}
+                    className="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition duration-150"
+                  >
+                    ↗ Share
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* THRESHOLD CUSTOM CTA */}
         {isHighSavings ? (
