@@ -118,3 +118,72 @@ index on `publicSlug` become necessary, and if `Lead` ever needs real analytical
 querying (cohort analysis, funnel reporting) rather than simple lookups, that's the
 point to reconsider a relational store for that collection specifically, rather than
 migrating the whole system.
+
+## Lead Capture + Storage
+
+### Fields captured
+- `email` (required)
+- `companyName` (optional)
+- `role` (optional)
+- `teamSize` (optional — pre-filled from the audit)
+
+### Storage: MongoDB (primary) + Cloudflare D1 (mirror)
+
+**MongoDB** is the source of truth for leads — it already holds the `Audit` document
+the lead belongs to, so a join-free lookup is natural.
+
+**Cloudflare D1** (`wisebill-leads` database, `leads` table) is a non-blocking
+secondary mirror. The insert fires asynchronously via the Cloudflare D1 REST API
+after the MongoDB write completes. A D1 failure is logged but never surfaces to the
+user — MongoDB always wins. This gives the marketing/ops team a SQL-queryable,
+Cloudflare-hosted copy of every lead without touching the production database.
+
+Schema lives in `server/d1/schema.sql` and was applied via:
+```
+wrangler d1 execute wisebill-leads --file=d1/schema.sql --remote
+```
+
+### Transactional email: Resend (free tier — 3,000 emails/month)
+
+Sent non-blocking after the lead is saved. Two template variants:
+- **High savings (≥ $500/mo):** includes a prominent note that Techvruk will review the
+  audit and reach out within 24 hours to discuss enterprise licensing and volume discounts
+- **Standard / low savings:** personalised confirmation with monthly/annual savings
+  figures and a direct link back to the audit results page
+
+On send success, `emailSent: true` is asynchronously written back to the Lead document.
+On failure, `emailSent: false` is preserved and the error is logged — the lead is not
+lost.
+
+## Abuse Protection
+
+**Chosen approach: Rate limiting + Honeypot (dual-layer)**
+
+### Layer 1 — express-rate-limit
+Applied exclusively to `POST /api/leads`. Configuration:
+- **Window:** 60 seconds
+- **Max:** 5 submissions per IP per window
+- **Response:** structured JSON `429 Too Many Requests` (consistent with the rest of the API)
+- Respects `X-Forwarded-For` for Cloudflare/reverse-proxy environments
+
+### Layer 2 — Honeypot field
+A hidden `<input name="website">` is added to all three lead capture form variants:
+```html
+<input type="text" name="website"
+  style="position:absolute;opacity:0;height:0;width:0;pointer-events:none"
+  tabIndex={-1} aria-hidden="true" autoComplete="off" />
+```
+Legitimate users never see or fill it. Bots that auto-fill all form fields will
+populate it. On the server, a non-empty `website` field causes a silent fake-200
+response — the request is discarded without saving to any database, and the bot
+receives no error signal to retry with.
+
+### Why not hCaptcha?
+
+hCaptcha requires a third-party JS load (~100 KB), sets GDPR-sensitive cookies, and
+adds visible friction for legitimate users. For a low-to-medium traffic audit tool
+where the primary concern is form spam bots (not coordinated human CAPTCHA farms),
+rate limiting + honeypot gives equivalent protection with zero UX cost and zero
+third-party dependencies. If the tool were to go public-facing at significant scale,
+hCaptcha or Turnstile would be the upgrade path.
+
