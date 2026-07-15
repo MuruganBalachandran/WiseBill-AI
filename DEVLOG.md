@@ -29,3 +29,13 @@ engine, get CI green for real (not just present).
 **What I learned:** TypeScript control-flow type narrowing can be strict when matching a narrowed string union against a broader enum type, solved by explicit string casting in comparisons.
 **Blockers / what I'm stuck on:** Resend email integration is pending local mock verification, which will be tackled in Day 3.
 **Plan for tomorrow:** Build the frontend client UI spend input form, persist state across page reloads using localStorage, and integrate the frontend with the API.
+  
+## Day 3 - 2026-07-15  
+**Hours worked:** 5 hours  
+**What I did:** Built the frontend React UI in Next.js using Tailwind CSS. Created the complex Spend Input Form with local storage persistence and dynamic toggles for 8 SaaS tools. Built the results page with the Savings Hero and integrated the API response.  
+**What I learned:** Building dynamic form validation for nested state objects (8 tools, each with their own plans and seat limits) requires careful state mapping.  
+**Plan for tomorrow:** Lead capture, shareable URLs, and AI summary integration.  
+  
+## Day 4 - 2026-07-15  
+**Hours worked:** 6 hours  
+**What I did:** Implemented dual-database architecture (MongoDB + Cloudflare D1 mirror). Wired up Anthropic API for custom AI summaries with a robust fallback. Integrated Resend for transactional emails with honeypot and IP rate limiting for abuse protection. Added dynamic Open Graph (OG) edge image generation for viral sharing.  
