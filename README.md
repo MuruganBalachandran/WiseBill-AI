@@ -4,6 +4,10 @@ An AI spend audit tool: paste in what your team pays for Cursor, Copilot, Claude
 
 Built for founders and small teams who've never once compared their AI tool bill against what they actually use it for.
 
+## Demo Video
+*(Required for Round 1 submission)*
+👉 **[Watch the 30-Second App Demo here](https://loom.com/insert-your-link-here)**
+
 ## Screenshots
 
 *(Screenshots will be added here post-deployment)*

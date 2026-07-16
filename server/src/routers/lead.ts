@@ -4,9 +4,13 @@ import { createLead } from '../controllers/index.js';
 import { leadRateLimiter } from '../middlewares/index.js';
 // endregion
 
+// router initiate
 const router = Router();
 
-// Abuse protection: 5 req/IP/60s rate limit + honeypot checked inside controller
+// region routes
 router.post('/', leadRateLimiter, createLead);
+// endregion
 
+// region export
 export default router;
+// endregion

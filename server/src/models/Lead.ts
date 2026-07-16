@@ -1,16 +1,6 @@
 // region imports
-import mongoose, { Document, Schema } from 'mongoose';
-// endregion
-
-// region lead interface
-export interface ILead extends Document {
-  email: string;
-  companyName?: string;
-  role?: string;
-  teamSize?: number;
-  savingsPotential?: number;
-  createdAt: Date;
-}
+import mongoose, { Schema } from 'mongoose';
+import { ILead } from '../types/index.js';
 // endregion
 
 // region lead schema

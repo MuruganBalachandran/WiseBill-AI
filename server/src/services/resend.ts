@@ -1,22 +1,13 @@
+// region imports
 import dotenv from 'dotenv';
+import { SendEmailOptions } from '../types/index.js';
+// endregion
+
+// region config
 dotenv.config();
+// endregion
 
-interface SendEmailOptions {
-  to: string;
-  auditSlug: string;
-  companyName?: string | null;
-  totalMonthlySavings: number;
-  totalAnnualSavings: number;
-  isHighSavings: boolean;
-}
-
-/**
- * Sends a transactional confirmation email via the Resend REST API.
- * Requires RESEND_API_KEY env var.
- * Failures are logged but do NOT throw.
- *
- * @returns true if email was sent successfully, false otherwise
- */
+// region resend service
 export const sendConfirmationEmail = async (opts: SendEmailOptions): Promise<boolean> => {
   const apiKey = process.env.RESEND_API_KEY;
 
@@ -159,3 +150,4 @@ ${isHighSavings ? `⚡ High Savings Alert: Your stack shows $${totalMonthlySavin
     return false;
   }
 };
+// endregion

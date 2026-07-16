@@ -1,14 +1,9 @@
 // region imports
-import { ISpendInput, IAuditResult } from '../models/Audit.js';
+import { ISpendInput, IAuditResult, IAuditResponse } from '../types/index.js';
 import { PRICING_DATA } from '../constants/pricing.js';
 // endregion
 
 // region pure function audit engine
-export interface IAuditResponse {
-  results: IAuditResult[];
-  totalMonthlySavings: number;
-  totalAnnualSavings: number;
-}
 
 export const runAudit = (
   spendInputs: ISpendInput[],

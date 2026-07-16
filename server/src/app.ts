@@ -2,14 +2,18 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import routes from './routers/index.js';
-import { globalErrorHandler } from './middlewares/index.js';
+import { globalErrorHandler, requestLogger } from './middlewares/index.js';
 // endregion
 
 // region initiate express app
 const app: Express = express();
+app.set('trust proxy', 1); 
+// Trust first proxy (e.g. Cloudflare) for correct req.ip handling
 // endregion
 
 // region middlewares
+// request logger
+app.use(requestLogger);
 
 // cross origin resource sharing
 app.use(cors());

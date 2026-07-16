@@ -1,14 +1,8 @@
-import { ISpendInput, IAuditResult } from '../models/Audit.js';
+// region imports
+import { ISpendInput, IAuditResult, IGenerationInput } from '../types/index.js';
+// endregion
 
-interface IGenerationInput {
-  teamSize: number;
-  primaryUseCase: string;
-  spendInputs: ISpendInput[];
-  results: IAuditResult[];
-  totalMonthlySavings: number;
-  totalAnnualSavings: number;
-}
-
+// region ai summary service
 export const generateAiSummary = async (input: IGenerationInput): Promise<{ summary: string; fallbackUsed: boolean }> => {
   const {
     teamSize,
@@ -184,3 +178,4 @@ const generateFallbackSummary = (input: IGenerationInput): string => {
 
   return `Based on our audit of your ${teamSize}-seat team's SaaS stack, you can save $${totalMonthlySavings.toFixed(2)} per month, projecting to $${totalAnnualSavings.toFixed(2)} in total annual savings. ${wasteReason} Implementing the plan adjustments detailed below will eliminate this recurring waste immediately without impact to your development velocity.`;
 };
+// endregion

@@ -1,16 +1,13 @@
+// region imports
 import dotenv from 'dotenv';
-dotenv.config();
+import { D1LeadRow } from '../types/index.js';
+// endregion
 
-interface D1LeadRow {
-  id: string;
-  auditId: string;
-  email: string;
-  companyName?: string | null;
-  role?: string | null;
-  teamSize?: number | null;
-  consentedAt: string;
-  emailSent: boolean;
-}
+// region config
+dotenv.config();
+// endregion
+
+// region d1 service
 
 /**
  * Inserts a lead into Cloudflare D1 via the REST API.
@@ -72,3 +69,4 @@ export const insertLeadToD1 = async (lead: D1LeadRow): Promise<void> => {
     console.error('[D1] Network error inserting lead:', err);
   }
 };
+// endregion
