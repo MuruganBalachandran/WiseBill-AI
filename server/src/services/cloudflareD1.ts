@@ -18,9 +18,9 @@ interface D1LeadRow {
  * Failures are logged but do NOT throw — MongoDB remains the source of truth.
  */
 export const insertLeadToD1 = async (lead: D1LeadRow): Promise<void> => {
-  const accountId = process.env.CF_ACCOUNT_ID;
-  const databaseId = process.env.CF_D1_DATABASE_ID;
-  const apiToken = process.env.CF_API_TOKEN;
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
   if (!accountId || !databaseId || !apiToken) {
     console.warn('[D1] Cloudflare D1 env vars not configured. Skipping D1 insert.');

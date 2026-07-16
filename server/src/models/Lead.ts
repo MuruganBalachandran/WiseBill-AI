@@ -1,39 +1,34 @@
 // region imports
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 // endregion
 
-// region interfaces
-export interface ILead {
-  auditId: mongoose.Types.ObjectId;
+// region lead interface
+export interface ILead extends Document {
   email: string;
-  companyName: string | null;
-  role: string | null;
-  teamSize: number | null;
-  consentedAt: Date;
-  emailSent: boolean;
+  companyName?: string;
+  role?: string;
+  teamSize?: number;
+  savingsPotential?: number;
+  createdAt: Date;
 }
-
-export interface ILeadDocument extends ILead, Document {}
 // endregion
 
-// region schemas
-const LeadSchema = new Schema<ILeadDocument>({
-  auditId: { type: Schema.Types.ObjectId, ref: 'Audit', required: true, index: true },
-  email: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
-    match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+// region lead schema
+const LeadSchema: Schema = new Schema(
+  {
+    email: { type: String, required: true },
+    companyName: { type: String },
+    role: { type: String },
+    teamSize: { type: Number },
+    savingsPotential: { type: Number },
+    createdAt: { type: Date, default: Date.now },
   },
-  companyName: { type: String, default: null },
-  role: { type: String, default: null },
-  teamSize: { type: Number, default: null },
-  consentedAt: { type: Date, default: Date.now },
-  emailSent: { type: Boolean, default: false },
-});
+  {
+    timestamps: true,
+  }
+);
 // endregion
 
-// region model
-export const Lead: Model<ILeadDocument> = mongoose.models.Lead || mongoose.model<ILeadDocument>('Lead', LeadSchema);
+// region export
+export const Lead = mongoose.model<ILead>('Lead', LeadSchema);
 // endregion

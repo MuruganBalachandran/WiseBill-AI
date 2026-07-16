@@ -1,21 +1,23 @@
-# Audit Engine Tests
+# Tests Documentation
 
-The core business logic of WiseBill AI is the audit engine (`server/src/services/engine.ts`). It is written as a pure function to ensure testability.
+All automated tests are located in the `client/__tests__` directory and use the Jest testing framework.
 
-## Test Coverage (`server/tests/auditEngine.test.ts`)
+## How to run the tests
+From the `client` directory, run:
+```bash
+npm run test
+```
 
-1. **Overkill Seat Detection:** 
-   - *Test:* Input a team of 3 using a plan with a 5-seat minimum (e.g., Claude Team).
-   - *Expectation:* Engine flags it and recommends downgrading to individual Pro seats.
-2. **Cheaper Alternative (Overlap):**
-   - *Test:* Input both Cursor Pro and GitHub Copilot Business.
-   - *Expectation:* Engine flags Copilot as redundant (since Cursor has native autocomplete) and recommends dropping Copilot for 100% savings on that line item.
-3. **API Break-even Analysis:**
-   - *Test:* Input a low-usage ChatGPT Plus plan ($20/mo) for a mixed use case.
-   - *Expectation:* Engine suggests moving to OpenAI API direct if estimated API usage falls below $20.
-4. **Already Optimal (<$100 case):**
-   - *Test:* Input a lean stack (1 dev on Cursor Pro).
-   - *Expectation:* Engine correctly returns 0 monthly savings and recommends "keep".
-5. **Cheaper Plan (Same Vendor):**
-   - *Test:* Input ChatGPT Enterprise for a 2-person team.
-   - *Expectation:* Engine flags that Enterprise is meant for 150+ seats and recommends downgrading to ChatGPT Team.
+## Test Coverage: `auditEngine.test.ts`
+This file contains the 5 required core business logic tests for the Audit Engine.
+
+1. **Test:** `handles optimal coding stack correctly`
+   - **What it covers:** Verifies that a small team (3 seats) on an optimized plan (Cursor Pro) triggers the 'keep' / 'already_optimal' logic with $0 in savings.
+2. **Test:** `flags phantom seats for Enterprise minimums`
+   - **What it covers:** Verifies that a 2-person team attempting to use ChatGPT Enterprise is flagged for wasting money, as Enterprise requires minimum seat counts they cannot utilize. Recommends downgrading.
+3. **Test:** `suggests IDE over general chat for coding`
+   - **What it covers:** If a user's primary use case is `coding` but they are paying $20/mo for ChatGPT Plus, it suggests switching to an AI-native IDE (like Cursor) for the same price but significantly higher engineering ROI.
+4. **Test:** `suggests API direct for heavy text routing`
+   - **What it covers:** Identifies when large teams (50+ seats) are paying retail for Claude Team and suggests routing through Anthropic API Direct (via a frontend like LibreChat) to capture massive margin savings.
+5. **Test:** `calculates annualized savings accurately`
+   - **What it covers:** A strict mathematical assertion ensuring `totalMonthlySavings * 12` exactly equals `totalAnnualSavings` across a complex array of inputs.
