@@ -10,6 +10,6 @@ export const createLeadRecord = async (data: Partial<ILead>): Promise<ILead> => 
 };
 
 export const updateLeadEmailSentStatus = async (leadId: string, status: boolean): Promise<ILead | null> => {
-  return await Lead.findByIdAndUpdate(leadId, { emailSent: status }, { new: true });
+  return await Lead.findByIdAndUpdate(leadId, { emailSent: status }, { returnDocument: 'after' });
 };
 // endregion

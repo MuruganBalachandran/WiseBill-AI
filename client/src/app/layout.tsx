@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { ReduxProvider } from "../store/ReduxProvider";
+import { Header } from "../components/layout/Header";
+import { Footer } from "../components/layout/Footer";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
@@ -43,7 +46,15 @@ export default function RootLayout({
       lang="en"
       className={`${ibmPlexSans.variable} font-sans h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ReduxProvider>
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+        </ReduxProvider>
+      </body>
     </html>
   );
 }

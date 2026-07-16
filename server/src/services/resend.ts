@@ -128,7 +128,7 @@ ${isHighSavings ? `⚡ High Savings Alert: Your stack shows $${totalMonthlySavin
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'WiseBill AI <audit@wisebill.ai>',
+        from: `WiseBill AI <${process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'}>`,
         to: [to],
         subject: `Your WiseBill AI Audit is Ready — $${totalMonthlySavings.toFixed(2)}/mo in savings identified`,
         html,

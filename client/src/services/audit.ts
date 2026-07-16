@@ -1,31 +1,26 @@
-import { API_BASE_URL } from '../lib/api';
+import { apiClient } from '../lib/axios';
 import { IAudit, IAuditCreateRequest, IApiResponse } from '../types/audit';
 
 export const createAudit = async (payload: IAuditCreateRequest): Promise<IAudit> => {
-  const response = await fetch(`${API_BASE_URL}/audits`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const json: IApiResponse<IAudit> = await response.json();
-  if (!response.ok || !json.success || !json.data) {
-    throw new Error(json.message || 'Failed to create audit');
+  const response = await apiClient.post<IApiResponse<IAudit>>('/api/audits', payload);
+  const data = response.data;
+  
+  if (!data.success || !data.data) {
+    throw new Error(data.message || 'Failed to create audit');
   }
 
-  return json.data;
+  return data.data;
 };
 
 export const getAuditBySlug = async (slug: string): Promise<IAudit> => {
-  const response = await fetch(`${API_BASE_URL}/audits/${slug}`);
-  const json: IApiResponse<IAudit> = await response.json();
-  if (!response.ok || !json.success || !json.data) {
-    throw new Error(json.message || 'Failed to retrieve audit');
+  const response = await apiClient.get<IApiResponse<IAudit>>(`/api/audits/${slug}`);
+  const data = response.data;
+
+  if (!data.success || !data.data) {
+    throw new Error(data.message || 'Failed to retrieve audit');
   }
 
-  return json.data;
+  return data.data;
 };
 
 export interface ILeadCreateRequest {
@@ -49,20 +44,14 @@ export interface ILead {
 }
 
 export const createLead = async (payload: ILeadCreateRequest): Promise<ILead> => {
-  const response = await fetch(`${API_BASE_URL}/leads`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await apiClient.post<IApiResponse<ILead>>('/api/leads', payload);
+  const data = response.data;
 
-  const json: IApiResponse<ILead> = await response.json();
-  if (!response.ok || !json.success || !json.data) {
-    throw new Error(json.message || 'Failed to create lead');
+  if (!data.success || !data.data) {
+    throw new Error(data.message || 'Failed to create lead');
   }
 
-  return json.data;
+  return data.data;
 };
 export type { IAudit };
 

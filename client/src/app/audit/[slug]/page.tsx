@@ -133,36 +133,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-150 pb-24">
-      {/* Header navbar */}
-      <header className="border-b border-zinc-200 bg-white/70 backdrop-blur-md dark:border-zinc-900 dark:bg-zinc-950/70 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20">
-              W
-            </div>
-            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-zinc-900 to-zinc-700 dark:from-white dark:to-zinc-300 bg-clip-text text-transparent">
-              WiseBill <span className="text-indigo-600 dark:text-indigo-400 font-medium">AI</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => window.print()}
-              className="no-print text-xs px-3.5 py-2 font-bold rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition duration-150 flex items-center gap-2"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              Save PDF
-            </button>
-            <button
-              onClick={() => router.push('/')}
-              className="no-print text-xs px-3.5 py-2 font-bold rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 transition duration-150"
-            >
-              ← Audit Another Stack
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Header handled by global layout.tsx */}
 
       {/* Main content grid */}
       <main className="max-w-6xl mx-auto px-6 mt-12 space-y-8">
