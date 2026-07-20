@@ -1,7 +1,11 @@
+// region imports
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { runAudit } from '../src/services/auditEngine.js';
 import type { ISpendInput } from '../src/models/Audit.js';
+// endregion
+
+// region unit tests
 
 test('1. Overkill-seat detection: 1 seat on Cursor Teams Standard', () => {
   const inputs: ISpendInput[] = [
@@ -122,3 +126,53 @@ test('5. API-direct vs subscription breakeven: high API usage', () => {
   assert.strictEqual(apiResult.monthlySavings, 175); // 300 - (5-seat min * 25) = 175
   assert.strictEqual(result.totalMonthlySavings, 175);
 });
+
+test('6. Retail vs Startup Credits Advisory: API spend below team breakeven', () => {
+  const inputs: ISpendInput[] = [
+    {
+      toolId: 'openai_api',
+      plan: 'pay_as_you_go',
+      monthlySpend: 40,
+      seats: 1,
+      useCase: 'coding',
+    },
+  ];
+
+  const result = runAudit(inputs, 1, 'coding');
+  const apiResult = result.results.find(r => r.toolId === 'openai_api')!;
+
+  assert.ok(apiResult);
+  assert.strictEqual(apiResult.recommendedAction, 'use_credits');
+  assert.strictEqual(apiResult.monthlySavings, 40);
+  assert.strictEqual(result.totalMonthlySavings, 40);
+});
+
+test('7. Duplicate chat tool consolidation: ChatGPT + Claude Pro for coding', () => {
+  const inputs: ISpendInput[] = [
+    {
+      toolId: 'claude',
+      plan: 'pro',
+      monthlySpend: 20,
+      seats: 1,
+      useCase: 'coding',
+    },
+    {
+      toolId: 'chatgpt',
+      plan: 'plus',
+      monthlySpend: 20,
+      seats: 1,
+      useCase: 'coding',
+    },
+  ];
+
+  const result = runAudit(inputs, 1, 'coding');
+  const chatgptResult = result.results.find(r => r.toolId === 'chatgpt')!;
+
+  assert.ok(chatgptResult);
+  assert.strictEqual(chatgptResult.recommendedAction, 'switch_tool');
+  assert.strictEqual(chatgptResult.recommendedPlan, 'free');
+  assert.strictEqual(chatgptResult.monthlySavings, 20);
+  assert.strictEqual(result.totalMonthlySavings, 20);
+});
+
+// endregion

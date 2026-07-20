@@ -37,7 +37,7 @@ export const PRICING_DATA: { [toolId: string]: IToolPricing } = {
       free: { costPerSeat: 0 },
       pro: { costPerSeat: 20, annualCostPerSeat: 17 },
       max: { costPerSeat: 100 },
-      team: { costPerSeat: 25, annualCostPerSeat: 20, minSeats: 5 }, // Claude Team Standard
+      team: { costPerSeat: 30, annualCostPerSeat: 25, minSeats: 5 }, // Claude Team Standard ($30/mo monthly, $25/mo annual)
       enterprise: { costPerSeat: 0, isCustom: true },
     },
   },
