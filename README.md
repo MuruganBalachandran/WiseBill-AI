@@ -30,12 +30,14 @@ Environment variables needed:
 **Server (`server/.env`)**
 - `PORT` (default 5000)
 - `MONGODB_URI`
-- `ANTHROPIC_API_KEY`
+- `ANTHROPIC_API_KEY` (optional; a templated summary is used when absent)
+- `GEMINI_API_KEY` or `OPENAI_API_KEY` (optional fallback providers)
 - `RESEND_API_KEY`
 
 **Client (`client/.env.local`)**
 - `NEXT_PUBLIC_API_URL` (default `http://localhost:5000/api`)
 - `NEXT_PUBLIC_APP_URL` (default `http://localhost:3000`)
+- `NEXT_PUBLIC_CONSULTATION_URL` (optional scheduling URL shown after a high-savings lead is captured)
 
 ## Deploy
 

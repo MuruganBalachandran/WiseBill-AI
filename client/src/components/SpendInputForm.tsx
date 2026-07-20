@@ -1,196 +1,123 @@
-// region imports
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store";
-import { updateInputs, updateGlobalSettings } from "@/store/slices/auditSlice";
-import { AuditInput } from "@/types/audit";
-import { getPricingConfig } from "@/services/audit";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-// endregion
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { ToolPicker } from '@/components/audit/ToolPicker';
+import { SubscriptionCard } from '@/components/audit/SubscriptionCard';
+import { createSubscription, normalizePlanId, normalizeToolId } from '@/constants/toolCatalog';
+import { RootState } from '@/store';
+import { updateGlobalSettings, updateInputs } from '@/store/slices/auditSlice';
+import { getPricingConfig } from '@/services/audit';
+import { AuditInput } from '@/types/audit';
+import { PricingConfig } from '@/types/pricing';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
-// region component
+type SpendInputFormProps = {
+  onAudit: (inputs: AuditInput[], honeypot: string) => void;
+};
 
-const DEFAULT_GLOBAL_SETTINGS = { teamSize: 50 };
-const DEFAULT_INPUTS: AuditInput[] = [
-  { tool: "ChatGPT", planName: "Plus", monthlySpend: 20, seats: 1, teamSize: 50, useCase: "mixed" }
-];
+const DEFAULT_GLOBAL_SETTINGS = { teamSize: 10 };
 
-export function SpendInputForm({ onAudit }: { onAudit: (inputs: AuditInput[], honeypot: string) => void }) {
-  // region state
+// The form coordinates persisted inputs; tool display and subscription fields stay in focused child components.
+export function SpendInputForm({ onAudit }: SpendInputFormProps) {
   const dispatch = useDispatch();
-  const inputs = useSelector((state: RootState) => (state.audit?.inputs && state.audit.inputs.length > 0) ? state.audit.inputs : DEFAULT_INPUTS);
-  const globalSettings = useSelector((state: RootState) => state.audit?.globalSettings || DEFAULT_GLOBAL_SETTINGS);
-  const [website, setWebsite] = useState("");
-  const [pricingData, setPricingData] = useState<any>(null);
-  // endregion
+  const inputs = useSelector((state: RootState) => state.audit.inputs);
+  const globalSettings = useSelector((state: RootState) => state.audit.globalSettings ?? DEFAULT_GLOBAL_SETTINGS);
+  const [pricing, setPricing] = useState<PricingConfig | null>(null);
+  const [website, setWebsite] = useState('');
+  const [loadError, setLoadError] = useState<string | null>(null);
 
+  // Fetch the same server-owned plan catalogue used by the audit engine.
   useEffect(() => {
     getPricingConfig()
-      .then(data => setPricingData(data))
-      .catch(err => console.error("Failed to load pricing data:", err));
+      .then(data => setPricing(data as PricingConfig))
+      .catch(() => setLoadError('We could not load the tool catalogue. Refresh and try again.'));
   }, []);
 
-  // Redux-persist handles rehydration automatically.
-  // We can just rely on the initial state from Redux.
+  // Upgrade pre-existing browser storage from the former display-name based form format.
+  useEffect(() => {
+    if (!pricing || inputs.length === 0) return;
+    const normalizedInputs = inputs.map(input => ({ ...input, tool: normalizeToolId(input.tool), planName: normalizePlanId(input.planName) }));
+    const changed = normalizedInputs.some((input, index) => input.tool !== inputs[index].tool || input.planName !== inputs[index].planName);
+    if (changed) dispatch(updateInputs(normalizedInputs));
+  }, [dispatch, inputs, pricing]);
 
-  const handleUpdate = (index: number, field: keyof AuditInput, value: string | number) => {
-    const newInputs = [...inputs];
-    newInputs[index] = { ...newInputs[index], [field]: value };
-    dispatch(updateInputs(newInputs));
+  // Calculate the visible stack total without storing derived state.
+  const currentMonthlySpend = useMemo(
+    () => inputs.reduce((total, input) => total + (Number(input.monthlySpend) || 0), 0),
+    [inputs],
+  );
+
+  // Add a selected tool with a sensible plan and list-price starting point.
+  const handleAddTool = (tool: string) => {
+    if (!pricing) return;
+    dispatch(updateInputs([...inputs, createSubscription(tool, globalSettings.teamSize, pricing)]));
   };
 
-  const handleAdd = () => {
-    dispatch(updateInputs([...inputs, { tool: "ChatGPT", planName: "Plus", monthlySpend: 20, seats: 1, teamSize: globalSettings.teamSize, useCase: "mixed" }]));
+  // Keep every edit immutable so Redux persistence remains dependable across reloads.
+  const handleInputChange = (index: number, field: keyof AuditInput, value: string | number) => {
+    const nextInputs = inputs.map((input, inputIndex) => inputIndex === index ? { ...input, [field]: value } : input);
+    dispatch(updateInputs(nextInputs));
   };
 
-  const handleRemove = (index: number) => {
-    const newInputs = inputs.filter((_: AuditInput, i: number) => i !== index);
-    dispatch(updateInputs(newInputs));
-  };
+  // Remove only the selected subscription; users may add it again if they need another plan.
+  const handleRemoveTool = (index: number) => dispatch(updateInputs(inputs.filter((_, inputIndex) => inputIndex !== index)));
 
+  // Submit normalized team context alongside each subscription for the existing audit API.
   const handleSubmit = () => {
-    // Inject global settings into all tool rows before submitting
-    const finalInputs = inputs.map((input: AuditInput) => ({
-      ...input,
-      teamSize: globalSettings.teamSize,
-    }));
+    const finalInputs = inputs.map(input => ({ ...input, teamSize: globalSettings.teamSize }));
     onAudit(finalInputs, website);
   };
 
-  if (!pricingData) {
-    return <div className="text-center py-12 text-muted-foreground animate-pulse">Loading tools database...</div>;
-  }
+  if (loadError) return <p role="alert" className="py-10 text-center text-sm text-destructive">{loadError}</p>;
+  if (!pricing) return <p className="py-10 text-center text-sm text-muted-foreground">Loading your tool catalogue…</p>;
+
+  const availableTools = Object.keys(pricing);
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Your AI Tech Stack</h2>
+    <div className="mx-auto w-full max-w-4xl space-y-8">
+      <div className="space-y-2 text-center">
+        <p className="text-sm font-semibold uppercase tracking-wider text-brand-purple-600">AI spend audit</p>
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">Build your AI stack in under a minute</h2>
+        <p className="text-muted-foreground">Start with your team, then add only the subscriptions you pay for.</p>
       </div>
 
-      {/* Global Settings */}
-      <Card className="border-border shadow-sm bg-zinc-50/50 dark:bg-zinc-900/50 mb-8">
-        <CardHeader className="pb-3 border-b border-border/50">
-          <CardTitle className="text-lg text-brand-purple-600">Company Profile</CardTitle>
+      <Card className="border-border bg-zinc-50/60 shadow-sm dark:bg-zinc-900/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">1. Your team</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-2">
-            <Label>Total Company Team Size</Label>
-            <Input 
-              type="number" 
-              value={globalSettings.teamSize}
-              onChange={(e) => dispatch(updateGlobalSettings({...globalSettings, teamSize: Number(e.target.value)}))}
-            />
-          </div>
+        <CardContent>
+          <label className="block max-w-xs space-y-2">
+            <span className="text-sm font-medium">Total team size</span>
+            <Input type="number" min="1" value={globalSettings.teamSize} onChange={event => dispatch(updateGlobalSettings({ teamSize: Math.max(1, Number(event.target.value)) }))} />
+            <span className="block text-xs text-muted-foreground">This helps us spot plan minimums and unused seats.</span>
+          </label>
         </CardContent>
       </Card>
 
-      <div className="flex justify-between items-center mt-8 mb-4">
-        <h3 className="text-xl font-semibold tracking-tight text-foreground">Active Subscriptions</h3>
-        <button 
-          onClick={handleAdd}
-          className="bg-brand-purple-600 hover:bg-brand-purple-700 text-white px-4 py-2 rounded-md font-medium transition text-sm shadow-sm"
-        >
-          + Add Tool
+      <section className="space-y-5">
+        <p className="text-sm font-semibold text-foreground">2. Your subscriptions</p>
+        <ToolPicker availableTools={availableTools} selectedTools={inputs.map(input => input.tool)} onAddTool={handleAddTool} />
+
+        {inputs.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-xl bg-brand-purple-600/10 px-4 py-3">
+              <span className="text-sm font-medium text-foreground">Current monthly stack total</span>
+              <span className="text-lg font-bold text-brand-purple-600">${currentMonthlySpend.toFixed(2)}</span>
+            </div>
+            {inputs.map((input, index) => <SubscriptionCard key={`${input.tool}-${index}`} input={input} index={index} pricing={pricing} onChange={handleInputChange} onRemove={handleRemoveTool} />)}
+          </div>
+        )}
+      </section>
+
+      <div className="space-y-3 pt-1 text-center">
+        <input type="text" name="website" value={website} onChange={event => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute h-px w-px overflow-hidden opacity-0" />
+        <button type="button" onClick={handleSubmit} disabled={inputs.length === 0} className="w-full rounded-xl bg-brand-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-brand-purple-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
+          Run my free audit
         </button>
+        <p className="text-xs text-muted-foreground">No login required. Your work is saved on this device.</p>
       </div>
-
-      {inputs.map((input: AuditInput, i: number) => (
-        <Card key={i} className="border-border shadow-sm">
-          <CardHeader className="pb-3 flex flex-row justify-between items-center">
-            <CardTitle className="text-lg">Tool #{i + 1}</CardTitle>
-            {inputs.length > 1 && (
-              <button onClick={() => handleRemove(i)} className="text-destructive hover:underline text-sm font-medium">Remove</button>
-            )}
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
-            <div className="space-y-2">
-              <Label>Tool</Label>
-              <select 
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                value={input.tool}
-                onChange={(e) => handleUpdate(i, "tool", e.target.value)}
-              >
-                {Object.keys(pricingData).map(tool => (
-                  <option key={tool} value={tool}>{tool}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Plan</Label>
-              <select 
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                value={input.planName}
-                onChange={(e) => handleUpdate(i, "planName", e.target.value)}
-              >
-                {pricingData[input.tool]?.plans ? Object.keys(pricingData[input.tool].plans).map(planName => (
-                  <option key={planName} value={planName}>{planName}</option>
-                )) : null}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Monthly Spend ($)</Label>
-              <Input 
-                type="number" 
-                value={input.monthlySpend}
-                onChange={(e) => handleUpdate(i, "monthlySpend", Number(e.target.value))}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Number of Seats</Label>
-              <Input 
-                type="number" 
-                value={input.seats}
-                onChange={(e) => handleUpdate(i, "seats", Number(e.target.value))}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Primary Use Case</Label>
-              <select 
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                value={input.useCase}
-                onChange={(e) => handleUpdate(i, "useCase", e.target.value)}
-              >
-                <option value="coding">Coding / Engineering</option>
-                <option value="writing">Writing / Content</option>
-                <option value="data">Data Analysis</option>
-                <option value="research">Research</option>
-                <option value="mixed">Mixed / General</option>
-              </select>
-            </div>
-
-          </CardContent>
-        </Card>
-      ))}
-
-      <div className="pt-6 flex justify-center">
-        {/* Honeypot field (hidden from real users, traps bots) */}
-        <input 
-          type="text" 
-          name="website" 
-          className="opacity-0 absolute -z-10 w-0 h-0" 
-          tabIndex={-1} 
-          autoComplete="off"
-          value={website} 
-          onChange={(e) => setWebsite(e.target.value)} 
-        />
-        <button 
-          onClick={handleSubmit}
-          className="bg-brand-purple-600 hover:bg-brand-purple-700 text-white px-8 py-3 rounded-md font-semibold text-lg shadow-md transition w-full md:w-auto"
-        >
-          Run Audit
-        </button>
-      </div>
-
     </div>
   );
 }
-// endregion

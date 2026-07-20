@@ -14,6 +14,14 @@ export default function WidgetPage() {
     setIsAuditing(true);
     
     const toolMap: Record<string, string> = {
+      "cursor": "cursor",
+      "copilot": "copilot",
+      "claude": "claude",
+      "chatgpt": "chatgpt",
+      "anthropic_api": "anthropic_api",
+      "openai_api": "openai_api",
+      "gemini": "gemini",
+      "v0": "v0",
       "Cursor": "cursor",
       "GitHub Copilot": "copilot",
       "Claude": "claude",
@@ -60,7 +68,7 @@ export default function WidgetPage() {
             We've analyzed your stack. Click below to view your personalized savings report.
           </p>
           <a 
-            href={`http://localhost:3000/audit/${slug}`} 
+            href={`${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/audit/${slug}`}
             target="_blank" 
             rel="noopener noreferrer"
             className="block w-full bg-brand-purple-600 hover:bg-brand-purple-700 text-white px-4 py-3 rounded-md font-semibold transition"

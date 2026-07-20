@@ -11,14 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v3
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
       with:
-        node-version: '18.x'
-        cache: 'npm'
-        cache-dependency-path: 'client/package-lock.json'
+        node-version: '20.x'
 
     - name: Install Client Dependencies
       working-directory: ./client
@@ -31,16 +29,18 @@ jobs:
     - name: Run Client Linter
       working-directory: ./client
       run: npm run lint
-      continue-on-error: true # Ensure build doesn't hard-fail if there are minor formatting issues
 
     - name: Run Client TypeScript Build Check
       working-directory: ./client
       run: npx tsc --noEmit
 
-    # Note: If the client folder has jest configured, this will run the tests.
-    - name: Run Automated Tests
-      working-directory: ./client
-      run: npm test -- --passWithNoTests
+    - name: Run audit-engine tests
+      working-directory: ./server
+      run: npm test
+
+    - name: Type-check server
+      working-directory: ./server
+      run: npx tsc --noEmit
 
     - name: Next.js Build
       working-directory: ./client

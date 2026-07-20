@@ -14,7 +14,7 @@ export const runAudit = (
   let totalMonthlySavings = 0;
 
   // Track if we have coding tools in the stack to detect overlaps
-  const hasCursor = spendInputs.some(i => i.toolId === 'cursor' && i.plan !== 'free');
+  const hasCursor = spendInputs.some(i => i.toolId === 'cursor' && i.plan !== 'hobby' && i.plan !== 'free');
   const hasCopilot = spendInputs.some(i => i.toolId === 'copilot' && i.plan !== 'free');
 
   for (const input of spendInputs) {
@@ -52,7 +52,7 @@ export const runAudit = (
         reasonText = `Downgrade to Claude Pro. The Team plan has a 5-seat minimum charge ($125/mo), making it overkill for ${seats} user${seats > 1 ? 's' : ''}.`;
       }
     } 
-    else if (toolId === 'chatgpt' && plan === 'business') {
+    else if (toolId === 'chatgpt' && plan === 'team') {
       // ChatGPT Business/Team has a 2-seat minimum ($50/mo monthly). If seats < 2, they pay $50/mo.
       if (seats < 2) {
         const pricingPlus = toolPricing?.plans?.plus?.costPerSeat ?? 20;
@@ -85,7 +85,7 @@ export const runAudit = (
 
       if (monthlySpend > totalSubscriptionCost) {
         recommendedAction = 'switch_tool';
-        recommendedPlan = toolId === 'anthropic_api' ? 'team' : 'business';
+        recommendedPlan = toolId === 'anthropic_api' ? 'team' : 'team';
         monthlySavings = monthlySpend - totalSubscriptionCost;
         const targetToolName = toolId === 'anthropic_api' ? 'Claude Team' : 'ChatGPT Team';
         reasonText = `Switch to ${targetToolName}. Your pay-as-you-go API spend ($${monthlySpend}) exceeds the cost of flat-rate chat subscriptions ($${totalSubscriptionCost}) for ${seats} seat${seats > 1 ? 's' : ''}.`;

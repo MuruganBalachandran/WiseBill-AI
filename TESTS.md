@@ -1,15 +1,15 @@
 # Tests Documentation
 
-All automated tests are located in the `client/__tests__` directory and use the Jest testing framework.
+All automated audit-engine tests are in `server/tests/auditEngine.test.ts` and use Node's built-in test runner via `tsx`.
 
 ## How to run the tests
-From the `client` directory, run:
+From the `server` directory, run:
 ```bash
 npm run test
 ```
 
 ## Test Coverage: `auditEngine.test.ts`
-This file contains the 5 required core business logic tests for the Audit Engine.
+This file contains the 5 required core business-logic tests for the audit engine.
 
 1. **Test:** `handles optimal coding stack correctly`
    - **What it covers:** Verifies that a small team (3 seats) on an optimized plan (Cursor Pro) triggers the 'keep' / 'already_optimal' logic with $0 in savings.

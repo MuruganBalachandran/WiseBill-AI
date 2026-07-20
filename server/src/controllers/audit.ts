@@ -66,7 +66,7 @@ export const createAudit = async (req: Request, res: Response) => {
       totalAnnualSavings: auditEngineResult.totalAnnualSavings,
       aiSummary: aiResult.summary,
       aiSummaryFallbackUsed: aiResult.fallbackUsed,
-      pricingSnapshotDate: new Date('2026-07-14'),
+      pricingSnapshotDate: new Date(),
       leadId: null,
     });
 

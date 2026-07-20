@@ -47,7 +47,7 @@ const AuditSchema = new Schema<IAuditDocument>({
   totalAnnualSavings: { type: Number, required: true, default: 0 },
   aiSummary: { type: String, default: '' },
   aiSummaryFallbackUsed: { type: Boolean, default: false },
-  pricingSnapshotDate: { type: Date, required: true, default: () => new Date('2026-07-14') },
+  pricingSnapshotDate: { type: Date, required: true, default: Date.now },
   leadId: { type: Schema.Types.ObjectId, ref: 'Lead', default: null },
   createdAt: { type: Date, default: Date.now },
 });

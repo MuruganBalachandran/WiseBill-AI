@@ -19,6 +19,14 @@ export const useAudit = () => {
 
     // Map frontend tool names to backend enums
     const toolMap: Record<string, string> = {
+      "cursor": "cursor",
+      "copilot": "copilot",
+      "claude": "claude",
+      "chatgpt": "chatgpt",
+      "anthropic_api": "anthropic_api",
+      "openai_api": "openai_api",
+      "gemini": "gemini",
+      "v0": "v0",
       "Cursor": "cursor",
       "GitHub Copilot": "copilot",
       "Claude": "claude",

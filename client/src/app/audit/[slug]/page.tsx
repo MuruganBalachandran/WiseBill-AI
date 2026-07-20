@@ -49,6 +49,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const consultationUrl = process.env.NEXT_PUBLIC_CONSULTATION_URL;
   // endregion
 
   useEffect(() => {
@@ -351,7 +352,14 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 <div className="text-center py-4 space-y-2">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto text-lg font-bold">✓</div>
                   <h4 className="font-bold text-zinc-900 dark:text-zinc-50">Request Submitted!</h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Our Enterprise team will contact you shortly to review your stack.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Your request is with the Techvruk team.</p>
+                  {consultationUrl ? (
+                    <a href={consultationUrl} target="_blank" rel="noreferrer" className="inline-flex text-xs font-bold text-indigo-600 hover:underline">
+                      Book your consultation now →
+                    </a>
+                  ) : (
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">We&apos;ll contact you to schedule a consultation.</p>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
