@@ -1,18 +1,17 @@
 // region imports
-import dotenv from 'dotenv';
 import { SendEmailOptions } from '../types/index.js';
+import { env } from '../config/index.js';
 // endregion
 
-// region config
-dotenv.config();
+// region config — loaded via env.ts, no bare dotenv.config() needed here
 // endregion
 
 // region resend service
 export const sendConfirmationEmail = async (opts: SendEmailOptions): Promise<boolean> => {
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = env.resend.apiKey;
 
   if (!apiKey) {
-    console.warn('[Resend] RESEND_API_KEY not configured. Skipping email send.');
+    console.warn('[Resend] resend.apiKey not configured. Skipping email send.');
     return false;
   }
 
@@ -25,7 +24,7 @@ export const sendConfirmationEmail = async (opts: SendEmailOptions): Promise<boo
     isHighSavings,
   } = opts;
 
-  const auditUrl = `${process.env.CLIENT_URL ?? 'http://localhost:3000'}/audit/${auditSlug}`;
+  const auditUrl = `${env.clientUrl ?? 'http://localhost:3000'}/audit/${auditSlug}`;
   const greeting = companyName ? `Hi ${companyName} team,` : 'Hi there,';
 
   const highSavingsNote = isHighSavings
@@ -128,7 +127,7 @@ ${isHighSavings ? `⚡ High Savings Alert: Your stack shows $${totalMonthlySavin
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: `WiseBill AI <${process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'}>`,
+        from: `WiseBill AI <${env.resend.fromEmail || 'onboarding@resend.dev'}>`,
         to: [to],
         subject: `Your WiseBill AI Audit is Ready — $${totalMonthlySavings.toFixed(2)}/mo in savings identified`,
         html,

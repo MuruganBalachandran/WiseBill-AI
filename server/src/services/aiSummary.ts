@@ -1,5 +1,6 @@
 // region imports
 import { IGenerationInput } from '../types/index.js';
+import { env } from '../config/index.js';
 // endregion
 
 // region prompt construction
@@ -46,7 +47,8 @@ INSTRUCTIONS:
 
 // Anthropic Claude API handler with 5-second timeout (preferred provider)
 const callAnthropicApi = async (prompt: string): Promise<string | null> => {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
+  // Key is optional — handler is skipped if not present in APP_CONFIG
+  if (!env.anthropicApiKey) return null;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -56,7 +58,7 @@ const callAnthropicApi = async (prompt: string): Promise<string | null> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': env.anthropicApiKey as string,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
@@ -86,14 +88,15 @@ const callAnthropicApi = async (prompt: string): Promise<string | null> => {
 
 // Google Gemini API handler with 5-second timeout
 const callGeminiApi = async (prompt: string): Promise<string | null> => {
-  if (!process.env.GEMINI_API_KEY) return null;
+  // Read key from the centralized env config (APP_CONFIG JSON)
+  if (!env.geminiApiKey) return null;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.geminiApiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,7 +126,8 @@ const callGeminiApi = async (prompt: string): Promise<string | null> => {
 
 // OpenAI API handler with 5-second timeout
 const callOpenAiApi = async (prompt: string): Promise<string | null> => {
-  if (!process.env.OPENAI_API_KEY) return null;
+  // Key is optional — handler is skipped if not present in APP_CONFIG
+  if (!env.openaiApiKey) return null;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -133,7 +137,7 @@ const callOpenAiApi = async (prompt: string): Promise<string | null> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${env.openaiApiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
