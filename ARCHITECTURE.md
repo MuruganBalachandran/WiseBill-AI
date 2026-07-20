@@ -9,7 +9,6 @@ sequenceDiagram
     participant E as Server (Express)
     participant LLM as Anthropic API
     participant DB as MongoDB
-    participant D1 as Cloudflare D1
     participant M as Resend
 
     U->>C: Inputs Stack & Team Size
@@ -25,7 +24,6 @@ sequenceDiagram
     C->>E: POST /api/leads (email, honeypot)
     E->>E: Check Honeypot (Layer 2 Spam)
     E->>DB: Save Lead linked to Audit
-    E-x D1: Background Mirror Sync
     E-x M: Send Transactional Confirmation
     E-->>C: Success 201
     C-->>U: Renders Success CTA
@@ -36,10 +34,9 @@ sequenceDiagram
 - Chosen for its App Router, making the dynamic `app/audit/[slug]` route highly performant while natively supporting Server-Side rendering for dynamic Open Graph metadata (critical for the viral loop requirement). 
 - Tailwind + glassmorphism UI enables the "Techvruk ditto" aesthetic to look highly premium, which is necessary for a tool targeting finance/leadership.
 
-**Backend: Express.js (Node) + MongoDB + Cloudflare D1**
+**Backend: Express.js (Node) + MongoDB**
 - Express handles the complex audit math and LLM integrations off the client, keeping API keys totally secure. 
 - MongoDB is the primary datastore for flexible schema rapid iteration.
-- Cloudflare D1 is integrated via a fire-and-forget sync to demonstrate scalable edge-database architecture.
 
 ## Scaling to 10k Audits/Day
 If this tool scaled to 10,000 audits per day, the current architecture would face two bottlenecks:

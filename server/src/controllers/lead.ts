@@ -4,7 +4,7 @@ import { HttpStatus } from '../constants/index.js';
 import { sendSuccess, sendError } from '../utils/common.js';
 import { validateEmail } from '../utils/validation.js';
 import { findAuditById, updateAuditRecord, createLeadRecord, updateLeadEmailSentStatus } from '../queries/index.js';
-import { insertLeadToD1, sendConfirmationEmail } from '../services/index.js';
+import { sendConfirmationEmail } from '../services/index.js';
 // endregion
 
 // region create lead controller
@@ -48,18 +48,7 @@ export const createLead = async (req: Request, res: Response) => {
     associatedAudit.leadId = savedLead._id as any;
     await updateAuditRecord(associatedAudit);
 
-    // Mirror to Cloudflare D1 (non-blocking)
-    // Fires and forgets — failure does not affect the response
-    insertLeadToD1({
-      id: (savedLead._id as any).toString(),
-      auditId,
-      email,
-      companyName: companyName ?? null,
-      role: role ?? null,
-      teamSize: teamSize ?? null,
-      consentedAt: (savedLead.createdAt ?? new Date()).toISOString(),
-      emailSent: false,
-    }).catch(err => console.error('[D1] Background insert failed:', err));
+
 
     // Send transactional confirmation email via Resend (non-blocking)
     const isHighSavings = associatedAudit.totalMonthlySavings >= 500;

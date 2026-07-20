@@ -1,15 +1,21 @@
+// region imports
 "use client";
 
 import { SpendInputForm } from "../components/SpendInputForm";
-import { AuditInput } from "../lib/auditEngine";
+import { AuditInput } from "../types/audit";
 import { useAudit } from "../hooks/useAudit";
+// endregion
+
+// region page component
 
 export default function Home() {
+  // region hooks & handlers
   const { runAudit, isAuditing, error } = useAudit();
 
-  const handleRunAudit = async (inputs: AuditInput[]) => {
-    await runAudit(inputs);
+  const handleRunAudit = async (inputs: AuditInput[], honeypot: string = "") => {
+    await runAudit(inputs, honeypot);
   };
+  // endregion
 
   return (
     <main className="min-h-screen bg-background">

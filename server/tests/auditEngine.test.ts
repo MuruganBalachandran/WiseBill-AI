@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { runAudit } from '../src/services/auditEngine.js';
-import { ISpendInput } from '../src/models/Audit.js';
+import type { ISpendInput } from '../src/models/Audit.js';
 
 test('1. Overkill-seat detection: 1 seat on Cursor Teams Standard', () => {
   const inputs: ISpendInput[] = [

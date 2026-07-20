@@ -44,7 +44,7 @@
 
 ## Day 7 — 2026-07-16
 **Hours worked:** 5
-**What I did:** Cleaned up the repo. Added PDF Export using `react-to-pdf`. Added the Benchmark progress bar UI. Created the Embeddable Widget route. Wrote all entrepreneurial markdown files.
-**What I learned:** React-to-pdf is much lighter than running Puppeteer on the backend for simple report exports.
+**What I did:** Cleaned up the repo. Added native PDF Export using `window.print()` and `@media print` CSS. Added the Benchmark progress bar UI. Created the Embeddable Widget route. Wrote all entrepreneurial markdown files.
+**What I learned:** Native `window.print()` combined with targeted `.no-print` CSS classes is incredibly lightweight and completely eliminates the need for heavy libraries like `react-to-pdf` or Puppeteer.
 **Blockers / what I'm stuck on:** None. The project is complete.
 **Plan for tomorrow:** Submit and rest!

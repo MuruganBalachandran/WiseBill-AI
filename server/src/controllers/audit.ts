@@ -10,8 +10,13 @@ import { runAudit, generateAiSummary } from '../services/index.js';
 // region create audit
 export const createAudit = async (req: Request, res: Response) => {
   try {
-    const { teamSize, primaryUseCase, spendInputs } = req.body;
+    const { teamSize, primaryUseCase, spendInputs, website } = req.body;
 
+    // Honeypot check for bots
+    if (website) {
+      // Return 200 to trick the bot, but do nothing
+      return sendSuccess(res, HttpStatus.OK, null, 'Audit created successfully');
+    }
     // Validation
     const teamSizeVal = validateTeamSize(teamSize);
     if (!teamSizeVal.valid) {

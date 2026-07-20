@@ -12,6 +12,17 @@ export const createAudit = async (payload: IAuditCreateRequest): Promise<IAudit>
   return data.data;
 };
 
+export const getPricingConfig = async (): Promise<any> => {
+  const response = await apiClient.get<IApiResponse<any>>('/api/audits/pricing');
+  const data = response.data;
+
+  if (!data.success || !data.data) {
+    throw new Error(data.message || 'Failed to retrieve pricing config');
+  }
+
+  return data.data;
+};
+
 export const getAuditBySlug = async (slug: string): Promise<IAudit> => {
   const response = await apiClient.get<IApiResponse<IAudit>>(`/api/audits/${slug}`);
   const data = response.data;
@@ -55,3 +66,21 @@ export const createLead = async (payload: ILeadCreateRequest): Promise<ILead> =>
 };
 export type { IAudit };
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+/**
+ * Fetches an audit by its slug from the backend for use in Server Components.
+ * Utilizes Next.js fetch caching capabilities.
+ */
+export async function getServerAuditBySlug(slug: string): Promise<IAudit | null> {
+  try {
+    const res = await fetch(`${API_BASE}/audits/${slug}`, {
+      next: { revalidate: 3600 }, // cache for 1 hour
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}

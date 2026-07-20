@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { SpendInputForm } from "@/components/SpendInputForm";
-import { AuditInput } from "@/lib/auditEngine";
+import { AuditInput } from "@/types/audit";
+import { createAudit } from "@/services/audit";
 
 export default function WidgetPage() {
   const [isAuditing, setIsAuditing] = useState(false);
@@ -24,7 +25,7 @@ export default function WidgetPage() {
     };
 
     const spendInputs = inputs.map(i => ({
-      toolId: toolMap[i.tool] || "cursor",
+      toolId: (toolMap[i.tool] || "cursor") as any,
       plan: i.planName,
       monthlySpend: i.monthlySpend,
       seats: i.seats,
@@ -32,21 +33,14 @@ export default function WidgetPage() {
     }));
 
     try {
-      const res = await fetch("http://localhost:5000/api/audits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          teamSize: inputs[0]?.teamSize || 1,
-          primaryUseCase: inputs[0]?.useCase || "mixed",
-          spendInputs
-        })
+      const auditData = await createAudit({
+        teamSize: inputs[0]?.teamSize || 1,
+        primaryUseCase: inputs[0]?.useCase || "mixed",
+        spendInputs
       });
 
-      const json = await res.json();
-      if (res.ok && json.success) {
-        setSlug(json.data.publicSlug);
-        setSuccess(true);
-      }
+      setSlug(auditData.publicSlug);
+      setSuccess(true);
     } catch (e) {
       console.error(e);
     } finally {

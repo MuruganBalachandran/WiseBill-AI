@@ -1,29 +1,9 @@
 import type { Metadata } from 'next';
+import { getServerAuditBySlug } from '@/services/audit';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-interface AuditPublic {
-  publicSlug: string;
-  totalMonthlySavings: number;
-  totalAnnualSavings: number;
-  spendInputs: { toolId: string }[];
-  aiSummary?: string;
-  aiSummaryFallbackUsed?: boolean;
-}
 
-async function fetchAudit(slug: string): Promise<AuditPublic | null> {
-  try {
-    const res = await fetch(`${API_BASE}/audits/${slug}`, {
-      next: { revalidate: 3600 }, // cache for 1 hour
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json?.data ?? null;
-  } catch {
-    return null;
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -31,7 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const audit = await fetchAudit(slug);
+  const audit = await getServerAuditBySlug(slug);
 
   if (!audit) {
     return {

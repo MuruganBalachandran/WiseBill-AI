@@ -1,6 +1,6 @@
 // region imports
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { ISpendInput, IAuditResult, IAudit, IAuditDocument } from '../types/index.js';
+import type { ISpendInput, IAuditResult, IAudit, IAuditDocument } from '../types/index.js';
 // endregion
 
 // region schemas
@@ -55,4 +55,6 @@ const AuditSchema = new Schema<IAuditDocument>({
 
 // region model
 export const Audit: Model<IAuditDocument> = mongoose.models.Audit || mongoose.model<IAuditDocument>('Audit', AuditSchema);
+
+export type { ISpendInput };
 // endregion

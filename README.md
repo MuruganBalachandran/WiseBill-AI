@@ -32,9 +32,6 @@ Environment variables needed:
 - `MONGODB_URI`
 - `ANTHROPIC_API_KEY`
 - `RESEND_API_KEY`
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_D1_DATABASE_ID`
 
 **Client (`client/.env.local`)**
 - `NEXT_PUBLIC_API_URL` (default `http://localhost:5000/api`)
@@ -45,17 +42,16 @@ Environment variables needed:
 - Frontend: Vercel
 - Backend: Render
 - Primary Database: MongoDB Atlas (Free Tier)
-- Mirror Database: Cloudflare D1
 
 Live demo: *(Deployed URL to be added after Vercel/Render setup)*
 
 ## Decisions
 
 1. **Architecture: Next.js App Router for Frontend, Express for Backend**
-   Next.js was chosen for its SEO capabilities (dynamic Open Graph images via `next/og` and Server Components for metadata injection) which are critical for the viral share loop. Express was chosen for the backend to keep the API layer fully decoupled, making it easier to integrate complex rate-limiting, honeypots, and dual-database writes (MongoDB + D1) without fighting serverless edge runtime limitations.
+   Next.js was chosen for its SEO capabilities (dynamic Open Graph images via `next/og` and Server Components for metadata injection) which are critical for the viral share loop. Express was chosen for the backend to keep the API layer fully decoupled, making it easier to integrate complex rate-limiting, honeypots, and complex data modeling without fighting serverless edge runtime limitations.
 
-2. **Database Strategy: Dual Write (MongoDB + Cloudflare D1)**
-   MongoDB handles the complex, nested JSON structure of the audit engine inputs natively without heavy relational mapping. Cloudflare D1 was added as a robust edge-ready mirror to ensure data durability and fast regional reads if we scale the shareable URLs to run entirely on the edge.
+2. **Database Strategy: MongoDB Document Store**
+   MongoDB handles the complex, nested JSON structure of the audit engine inputs natively without heavy relational mapping, making it the ideal primary datastore.
 
 3. **Abuse Protection: Honeypot + IP Rate Limiting over CAPTCHA**
    hCaptcha adds massive friction to conversion rates on lead capture forms. We opted for a hidden honeypot field (to trap dumb bots) combined with strict IP-based rate limiting (`express-rate-limit`) to protect the Anthropic API credits and database without hurting the user experience for legitimate visitors.

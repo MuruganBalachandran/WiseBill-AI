@@ -13,4 +13,15 @@ export const leadRateLimiter = rateLimit({
     message: 'Too many requests. Please wait a moment before trying again.',
   },
 });
+
+export const auditRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 60 seconds
+  max: 3,              // max 3 audit creations per IP per window (protecting AI API)
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many audits requested. Please wait a moment before trying again.',
+  },
+});
 // endregion

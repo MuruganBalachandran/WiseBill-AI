@@ -1,17 +1,39 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import auditReducer from './slices/auditSlice';
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  whitelist: ['audit'], // only persist the audit slice
+const createNoopStorage = () => {
+  return {
+    getItem(_key: any) {
+      return Promise.resolve(null);
+    },
+    setItem(_key: any, value: any) {
+      return Promise.resolve(value);
+    },
+    removeItem(_key: any) {
+      return Promise.resolve();
+    },
+  };
 };
+
+const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
+
+import { PersistConfig } from 'redux-persist';
+import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
 const rootReducer = combineReducers({
   audit: auditReducer,
 });
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+const persistConfig: PersistConfig<RootState> = {
+  key: 'root',
+  storage,
+  stateReconciler: autoMergeLevel2,
+  whitelist: ['audit'], // only persist the audit slice
+};
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
@@ -25,5 +47,4 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 
-export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

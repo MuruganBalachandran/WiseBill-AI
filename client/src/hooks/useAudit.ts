@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { apiClient } from '../lib/axios';
-import { AuditInput } from '../lib/auditEngine';
+import { AuditInput } from '../types/audit';
 import { addAuditSlug } from '../store/slices/auditSlice';
 
 export const useAudit = () => {
@@ -13,7 +13,7 @@ export const useAudit = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const runAudit = async (inputs: AuditInput[]) => {
+  const runAudit = async (inputs: AuditInput[], honeypot: string = '') => {
     setIsAuditing(true);
     setError(null);
 
@@ -41,7 +41,8 @@ export const useAudit = () => {
       const response = await apiClient.post('/api/audits', {
         teamSize: inputs[0]?.teamSize || 1,
         primaryUseCase: inputs[0]?.useCase || "mixed",
-        spendInputs
+        spendInputs,
+        website: honeypot
       });
 
       const data = response.data;

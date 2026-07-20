@@ -1,13 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AuditInput } from '../../types/audit';
 
 interface AuditState {
   recentAudits: string[]; // store recent slugs
   latestAuditSlug: string | null;
+  inputs: AuditInput[];
+  globalSettings: { teamSize: number };
 }
 
 const initialState: AuditState = {
   recentAudits: [],
   latestAuditSlug: null,
+  inputs: [],
+  globalSettings: { teamSize: 10 },
 };
 
 const auditSlice = createSlice({
@@ -27,9 +32,15 @@ const auditSlice = createSlice({
     clearAudits: (state) => {
       state.recentAudits = [];
       state.latestAuditSlug = null;
-    }
+    },
+    updateInputs: (state, action: PayloadAction<AuditInput[]>) => {
+      state.inputs = action.payload;
+    },
+    updateGlobalSettings: (state, action: PayloadAction<{ teamSize: number }>) => {
+      state.globalSettings = action.payload;
+    },
   },
 });
 
-export const { addAuditSlug, clearAudits } = auditSlice.actions;
+export const { addAuditSlug, clearAudits, updateInputs, updateGlobalSettings } = auditSlice.actions;
 export default auditSlice.reducer;

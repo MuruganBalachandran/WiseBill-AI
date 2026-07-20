@@ -6,6 +6,15 @@ export interface ISpendInput {
   useCase: 'coding' | 'writing' | 'data' | 'research' | 'mixed';
 }
 
+export type AuditInput = {
+  tool: string;
+  planName: string;
+  monthlySpend: number;
+  seats: number;
+  teamSize: number;
+  useCase: "coding" | "writing" | "data" | "research" | "mixed";
+};
+
 export interface IAuditResult {
   toolId: string;
   currentSpend: number;

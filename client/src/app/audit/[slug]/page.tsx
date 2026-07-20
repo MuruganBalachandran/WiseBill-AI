@@ -1,10 +1,13 @@
-/* eslint-disable react-hooks/set-state-in-effect, react/no-unescaped-entities */
+// region imports
 'use client';
 
 import React, { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuditBySlug, createLead } from '../../../services/audit';
 import { IAudit, IAuditResult } from '../../../types/audit';
+// endregion
+
+// region constants
 
 const TOOL_NAMES: Record<string, string> = {
   cursor: 'Cursor',
@@ -25,7 +28,11 @@ const ACTION_BADGES: Record<string, { label: string; style: string }> = {
   use_credits: { label: 'Use API Credits', style: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-500/20' },
 };
 
+// endregion
+
+// region page component
 export default function AuditPage({ params }: { params: Promise<{ slug: string }> }) {
+  // region state & hooks
   const router = useRouter();
   const { slug } = use(params);
 
@@ -42,6 +49,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  // endregion
 
   useEffect(() => {
     if (!slug) return;
@@ -225,7 +233,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
         )}
 
         {/* ── VIRAL SHARE PANEL ─────────────────────────────────────────── */}
-        <div className="relative rounded-3xl overflow-hidden">
+        <div className="relative rounded-3xl overflow-hidden no-print">
           {/* Gradient border effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 rounded-3xl" />
           <div className="relative m-[1.5px] rounded-[calc(1.5rem-1.5px)] bg-white dark:bg-zinc-950 p-8">
@@ -276,6 +284,14 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                   {copied ? '✓ Copied!' : 'Copy Link'}
                 </button>
 
+                {/* Print PDF button */}
+                <button
+                  onClick={() => window.print()}
+                  className="shrink-0 px-5 py-2.5 rounded-xl text-xs font-bold bg-white text-zinc-900 border border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800 transition-all duration-200"
+                >
+                  🖨️ Export PDF
+                </button>
+
                 {/* Twitter/X share */}
                 <a
                   id="audit-share-twitter"
@@ -317,7 +333,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
         {/* THRESHOLD CUSTOM CTA */}
         {isHighSavings ? (
           /* HIGH SAVINGS CTA: Prominently surface Techvruk */
-          <div className="p-8 rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] dark:bg-indigo-950/10 shadow-lg flex flex-col lg:flex-row gap-8 items-center justify-between">
+          <div className="p-8 rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] dark:bg-indigo-950/10 shadow-lg flex flex-col lg:flex-row gap-8 items-center justify-between no-print">
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 px-3 py-1 rounded-full">
                 ⚡ Techvruk Enterprise Savings
@@ -391,7 +407,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
           </div>
         ) : isOptimalStack ? (
           /* OPTIMAL STACK / LOW SAVINGS: Be Honest. "You're spending well" + Alert Lead Capture */
-          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between">
+          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between no-print">
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">
                 🛡️ Honest Audit
@@ -441,7 +457,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
           </div>
         ) : (
           /* MEDIUM SAVINGS CTA: $100 - $499/mo standard consultation download lead capture */
-          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between">
+          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between no-print">
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 px-3 py-1 rounded-full">
                 📈 High-Potential Savings
