@@ -1,10 +1,13 @@
+// region imports
 import type { Metadata } from 'next';
 import { getServerAuditBySlug } from '@/services/audit';
+// endregion
 
+// region constants
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+// endregion
 
-
-
+// region dynamic metadata generator
 export async function generateMetadata({
   params,
 }: {
@@ -72,7 +75,9 @@ export async function generateMetadata({
     },
   };
 }
+// endregion
 
+// region layout component
 export default function AuditSlugLayout({
   children,
 }: {
@@ -80,3 +85,4 @@ export default function AuditSlugLayout({
 }) {
   return <>{children}</>;
 }
+// endregion

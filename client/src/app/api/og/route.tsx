@@ -1,8 +1,13 @@
+// region imports
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
+// endregion
 
+// region edge runtime configuration
 export const runtime = 'edge';
+// endregion
 
+// region og image generator
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
@@ -48,7 +53,8 @@ export async function GET(request: NextRequest) {
           overflow: 'hidden',
         }}
       >
-        {/* Background grid pattern */}
+        { // background grid pattern
+        }
         <div
           style={{
             position: 'absolute',
@@ -58,7 +64,8 @@ export async function GET(request: NextRequest) {
           }}
         />
 
-        {/* Top bar: Logo + badge */}
+        { // top bar: logo and badge
+        }
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{
@@ -91,7 +98,8 @@ export async function GET(request: NextRequest) {
           </div>
         </div>
 
-        {/* Main content */}
+        { // main content area
+        }
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', zIndex: 1, flex: 1, justifyContent: 'center' }}>
           <div style={{
             fontSize: savings > 999 ? '72px' : '80px',
@@ -124,7 +132,8 @@ export async function GET(request: NextRequest) {
           </div>
         </div>
 
-        {/* Bottom CTA bar */}
+        { // bottom cta bar
+        }
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -161,3 +170,4 @@ export async function GET(request: NextRequest) {
     }
   );
 }
+// endregion
