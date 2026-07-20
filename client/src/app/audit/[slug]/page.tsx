@@ -32,7 +32,7 @@ const ACTION_BADGES: Record<string, { label: string; style: string }> = {
 
 // region page component
 export default function AuditPage({ params }: { params: Promise<{ slug: string }> }) {
-  // region state & hooks
+  // region state and hooks
   const router = useRouter();
   const { slug } = use(params);
 
@@ -40,11 +40,11 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Lead Form State
+  // lead form state
   const [email, setEmail] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [role, setRole] = useState('');
-  const [honeypot, setHoneypot] = useState(''); // Honeypot: legitimate users never fill this
+  const [honeypot, setHoneypot] = useState(''); // honeypot field for bot protection
   const [submittingLead, setSubmittingLead] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
@@ -52,6 +52,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   const consultationUrl = process.env.NEXT_PUBLIC_CONSULTATION_URL;
   // endregion
 
+  // region data fetching
   useEffect(() => {
     if (!slug) return;
 
@@ -69,7 +70,9 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
         setLoading(false);
       });
   }, [slug]);
+  // endregion
 
+  // region event handlers
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!audit || !email) return;
@@ -83,7 +86,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
         companyName: companyName || undefined,
         role: role || undefined,
         teamSize: audit.teamSize,
-        website: honeypot, // Honeypot — silently sent; non-empty value triggers server-side rejection
+        website: honeypot, // honeypot field sent to server
       });
       setLeadSuccess(true);
       setEmail('');
@@ -96,10 +99,12 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
       setSubmittingLead(false);
     }
   };
+  // endregion
 
+  // region loading view
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center font-sans">
         <div className="w-12 h-12 rounded-full border-4 border-indigo-600/30 border-t-indigo-600 animate-spin"></div>
         <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 mt-4 animate-pulse">
           Loading SaaS spend audit results...
@@ -107,10 +112,12 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
       </div>
     );
   }
+  // endregion
 
+  // region error view
   if (error || !audit) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center p-6 text-center">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center p-6 text-center font-sans">
         <div className="w-16 h-16 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center text-2xl font-bold mb-4">
           !
         </div>
@@ -127,28 +134,30 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
       </div>
     );
   }
+  // endregion
 
+  // region calculations
   const { totalMonthlySavings, totalAnnualSavings, results, spendInputs, aiSummary, aiSummaryFallbackUsed, teamSize } = audit;
   const isHighSavings = totalMonthlySavings >= 500;
   const isOptimalStack = totalMonthlySavings < 100;
 
-  // Benchmark Calculation
+  // benchmark calculation
   const INDUSTRY_AVG_PER_DEV = 110;
   const totalMonthlySpend = results.reduce((sum, r) => sum + r.currentSpend, 0);
   const safeTeamSize = teamSize || 1;
   const spendPerDev = totalMonthlySpend / safeTeamSize;
   const spendDiff = Math.abs(spendPerDev - INDUSTRY_AVG_PER_DEV);
   const isAboveAverage = spendPerDev > INDUSTRY_AVG_PER_DEV;
+  // endregion
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-150 pb-24">
-      {/* Header handled by global layout.tsx */}
-
-      {/* Main content grid */}
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans transition-colors duration-150 pb-24">
       <main className="max-w-6xl mx-auto px-6 mt-12 space-y-8">
         
-        {/* HERO: Monthly & Annual savings banner + Benchmark */}
+        {/* region hero banner section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          {/* monthly savings card */}
           <div className="p-8 rounded-3xl bg-gradient-to-tr from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-600/10 flex flex-col justify-between break-inside-avoid">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-indigo-200 bg-indigo-500/20 px-3 py-1 rounded-full">
@@ -158,11 +167,12 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 ${totalMonthlySavings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<span className="text-xl text-indigo-300 font-bold">/mo</span>
               </div>
             </div>
-            <p className="text-sm text-indigo-100/80 mt-6 leading-relaxed">
+            <p className="text-sm text-indigo-100/80 mt-6 leading-relaxed font-sans">
               Consolidating licensing plans, clearing redundant subscriptions, and aligning API contracts saves your team this amount monthly.
             </p>
           </div>
 
+          {/* annual projected card */}
           <div className="p-8 rounded-3xl bg-zinc-900 dark:bg-zinc-900/50 border border-zinc-800 text-white flex flex-col justify-between break-inside-avoid">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full">
@@ -172,12 +182,12 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 ${totalAnnualSavings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<span className="text-xl text-emerald-700 font-bold">/yr</span>
               </div>
             </div>
-            <p className="text-sm text-zinc-400 mt-6 leading-relaxed">
+            <p className="text-sm text-zinc-400 mt-6 leading-relaxed font-sans">
               By implementing the migration paths outlined below, your team will reduce its annualized SaaS expenditure by this projection.
             </p>
           </div>
 
-          {/* Benchmark Card */}
+          {/* peer benchmark card */}
           <div className="p-8 rounded-3xl border border-zinc-200 bg-white dark:border-zinc-800/80 dark:bg-zinc-950/40 flex flex-col justify-between break-inside-avoid shadow-sm relative overflow-hidden">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full">
@@ -193,7 +203,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 <span className={isAboveAverage ? 'text-rose-500' : 'text-emerald-500'}>Your team</span>
                 <span className="text-zinc-400">Avg. ($110)</span>
               </div>
-              <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden flex">
+              <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden flex relative">
                 <div 
                   className={`h-full ${isAboveAverage ? 'bg-rose-500' : 'bg-emerald-500'} rounded-full`}
                   style={{ width: `${Math.min((spendPerDev / 200) * 100, 100)}%` }}
@@ -203,16 +213,17 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                   style={{ left: `${(INDUSTRY_AVG_PER_DEV / 200) * 100}%` }}
                 />
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3 font-medium">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3 font-medium font-sans">
                 You spend <span className={isAboveAverage ? 'text-rose-500 font-bold' : 'text-emerald-500 font-bold'}>${spendDiff.toFixed(0)} {isAboveAverage ? 'more' : 'less'}</span> per developer than the industry average.
               </p>
             </div>
           </div>
         </div>
+        {/* endregion */}
 
-        {/* AI Executive Summary Card */}
+        {/* region executive summary */}
         {aiSummary && (
-          <div className="p-8 rounded-3xl border border-zinc-200 bg-white dark:border-zinc-800/80 dark:bg-zinc-950/40 shadow-sm relative overflow-hidden">
+          <div className="p-8 rounded-3xl border border-zinc-200 bg-white dark:border-zinc-800/80 dark:bg-zinc-950/40 shadow-sm relative overflow-hidden font-sans">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full filter blur-3xl pointer-events-none -mr-20 -mt-20"></div>
             
             <div className="flex justify-between items-start mb-4">
@@ -227,20 +238,19 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
               )}
             </div>
 
-            <p className="text-sm leading-relaxed font-medium text-zinc-700 dark:text-zinc-300 relative z-10 italic">
+            <p className="text-sm leading-relaxed font-medium text-zinc-700 dark:text-zinc-300 relative z-10 italic font-sans">
               "{aiSummary}"
             </p>
           </div>
         )}
+        {/* endregion */}
 
-        {/* ── VIRAL SHARE PANEL ─────────────────────────────────────────── */}
-        <div className="relative rounded-3xl overflow-hidden no-print">
-          {/* Gradient border effect */}
+        {/* region viral share panel */}
+        <div className="relative rounded-3xl overflow-hidden no-print font-sans">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 rounded-3xl" />
           <div className="relative m-[1.5px] rounded-[calc(1.5rem-1.5px)] bg-white dark:bg-zinc-950 p-8">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               
-              {/* Left: messaging */}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🔗</span>
@@ -253,9 +263,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 </p>
               </div>
 
-              {/* Right: action cluster */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-                {/* URL bar + copy */}
                 <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 flex-1 lg:w-80 min-w-0">
                   <span className="text-zinc-400 shrink-0">🔗</span>
                   <input
@@ -267,7 +275,6 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                   />
                 </div>
 
-                {/* Copy button */}
                 <button
                   id="audit-copy-btn"
                   onClick={async () => {
@@ -285,7 +292,6 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                   {copied ? '✓ Copied!' : 'Copy Link'}
                 </button>
 
-                {/* Print PDF button */}
                 <button
                   onClick={() => window.print()}
                   className="shrink-0 px-5 py-2.5 rounded-xl text-xs font-bold bg-white text-zinc-900 border border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800 transition-all duration-200"
@@ -293,7 +299,6 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                   🖨️ Export PDF
                 </button>
 
-                {/* Twitter/X share */}
                 <a
                   id="audit-share-twitter"
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -311,7 +316,6 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                   Share on X
                 </a>
 
-                {/* Native share (mobile) */}
                 {typeof navigator !== 'undefined' && 'share' in navigator && (
                   <button
                     onClick={() => navigator.share({
@@ -330,11 +334,12 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </div>
           </div>
         </div>
+        {/* endregion */}
 
-        {/* THRESHOLD CUSTOM CTA */}
+        {/* region lead capture section */}
         {isHighSavings ? (
-          /* HIGH SAVINGS CTA: Prominently surface Techvruk */
-          <div className="p-8 rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] dark:bg-indigo-950/10 shadow-lg flex flex-col lg:flex-row gap-8 items-center justify-between no-print">
+          // high savings cta: prominently surface techvruk
+          <div className="p-8 rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] dark:bg-indigo-950/10 shadow-lg flex flex-col lg:flex-row gap-8 items-center justify-between no-print font-sans">
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 px-3 py-1 rounded-full">
                 ⚡ Techvruk Enterprise Savings
@@ -342,7 +347,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
               <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
                 Capture More Savings with Techvruk
               </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
                 Your monthly savings are substantial! Techvruk can help you consolidate your entire SaaS stack, negotiate direct enterprise deals with Cursor, Anthropic, or OpenAI, and lock in an extra **20% to 30%** custom volume discount on your behalf.
               </p>
             </div>
@@ -363,7 +368,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
-                  {/* Honeypot — hidden from real users, filled by bots, rejected server-side */}
+                  {/* honeypot field for bot protection */}
                   <input
                     type="text"
                     name="website"
@@ -382,7 +387,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                       placeholder="work@company.com"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium font-sans"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -391,20 +396,20 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                       placeholder="Company Name"
                       value={companyName}
                       onChange={e => setCompanyName(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium font-sans"
                     />
                     <input
                       type="text"
                       placeholder="Your Role"
                       value={role}
                       onChange={e => setRole(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium font-sans"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={submittingLead}
-                    className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition duration-150 shadow shadow-indigo-600/20"
+                    className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition duration-150 shadow shadow-indigo-600/20 font-sans"
                   >
                     {submittingLead ? 'Submitting request...' : 'Connect with Techvruk'}
                   </button>
@@ -414,8 +419,8 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </div>
           </div>
         ) : isOptimalStack ? (
-          /* OPTIMAL STACK / LOW SAVINGS: Be Honest. "You're spending well" + Alert Lead Capture */
-          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between no-print">
+          // honest low-savings cta: "you're spending well" + alert lead capture
+          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between no-print font-sans">
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">
                 🛡️ Honest Audit
@@ -423,7 +428,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
               <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
                 You’re Spending Well!
               </h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-sans">
                 Excellent management! Our optimization engine analyzed your stack and confirmed your subscription levels align cleanly with your team size and use cases. We don't manufacture fake savings. You're already running an optimized stack.
               </p>
             </div>
@@ -433,14 +438,14 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 <div className="text-center py-4 space-y-2">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto text-lg font-bold">✓</div>
                   <h4 className="font-bold text-zinc-900 dark:text-zinc-50">Subscribed Successfully!</h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">We'll alert you if rates change or new features apply to your stack.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans">We'll alert you if rates change or new features apply to your stack.</p>
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
-                  {/* Honeypot — invisible to real users */}
+                  {/* honeypot field for bot protection */}
                   <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex={-1} aria-hidden="true" autoComplete="off" style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} />
                   <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-50">Stay Optimized</h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Receive alerts if tool prices drift or new optimization strategies apply to your stack.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans">Receive alerts if tool prices drift or new optimization strategies apply to your stack.</p>
                   <div>
                     <input
                       type="email"
@@ -448,13 +453,13 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                       placeholder="work@company.com"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium font-sans"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={submittingLead}
-                    className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-900 text-xs font-bold rounded-xl transition duration-150"
+                    className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-900 text-xs font-bold rounded-xl transition duration-150 font-sans"
                   >
                     {submittingLead ? 'Subscribing...' : 'Notify Me of Optimizations'}
                   </button>
@@ -464,8 +469,8 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </div>
           </div>
         ) : (
-          /* MEDIUM SAVINGS CTA: $100 - $499/mo standard consultation download lead capture */
-          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between no-print">
+          // medium savings cta: $100 - $499/mo standard consultation download lead capture
+          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/40 flex flex-col lg:flex-row gap-8 items-center justify-between no-print font-sans">
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 px-3 py-1 rounded-full">
                 📈 High-Potential Savings
@@ -473,7 +478,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
               <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
                 Implement Savings Safely
               </h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-sans">
                 We&apos;ve mapped out **${totalMonthlySavings}/month** in real savings. Enter your email below to download the full detailed PDF migration checklist and request assistance migrating plans without interrupting your team&apos;s workflow.
               </p>
             </div>
@@ -483,11 +488,11 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 <div className="text-center py-4 space-y-2">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto text-lg font-bold">✓</div>
                   <h4 className="font-bold text-zinc-900 dark:text-zinc-50">PDF requested!</h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Check your inbox for the custom migration checklist shortly.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans">Check your inbox for the custom migration checklist shortly.</p>
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
-                  {/* Honeypot — invisible to real users */}
+                  {/* honeypot field for bot protection */}
                   <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex={-1} aria-hidden="true" autoComplete="off" style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} />
                   <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400">Download Custom Audit PDF</h4>
                   <div>
@@ -497,7 +502,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                       placeholder="work@company.com"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium font-sans"
                     />
                   </div>
                   <div>
@@ -506,13 +511,13 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                       placeholder="Company Name"
                       value={companyName}
                       onChange={e => setCompanyName(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 font-medium font-sans"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={submittingLead}
-                    className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition duration-150"
+                    className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition duration-150 font-sans"
                   >
                     {submittingLead ? 'Generating PDF...' : 'Download PDF & Request Assistance'}
                   </button>
@@ -522,9 +527,10 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </div>
           </div>
         )}
+        {/* endregion */}
 
-        {/* PER-TOOL BREAKDOWN DETAILS */}
-        <div className="space-y-6">
+        {/* region per-tool breakdown details */}
+        <div className="space-y-6 font-sans">
           <h2 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-3">
             <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 text-sm font-bold">📋</span>
             Tool-by-Tool Optimization Breakdown
@@ -532,9 +538,6 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
 
           <div className="space-y-4">
             {spendInputs.map(input => {
-              // Find matching audit result for this tool
-              // Note that in backend, some toolIds might have mapped (e.g. chatgpt api_direct maps to openai_api). 
-              // We match based on the input index, or if the backend matches the list in order (which it does, results are pushed in order of spendInputs loop).
               const inputIndex = spendInputs.indexOf(input);
               const result: IAuditResult | undefined = results[inputIndex];
 
@@ -546,7 +549,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
               return (
                 <div
                   key={inputIndex}
-                  className="p-6 rounded-3xl border border-zinc-200/80 bg-white/70 dark:border-zinc-850 dark:bg-zinc-950/70 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-zinc-300 dark:hover:border-zinc-800 transition duration-150"
+                  className="p-6 rounded-3xl border border-zinc-200/80 bg-white/70 dark:border-zinc-850 dark:bg-zinc-950/70 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-zinc-300 dark:hover:border-zinc-800 transition duration-150 font-sans"
                 >
                   <div className="space-y-2.5 max-w-xl">
                     <div className="flex items-center gap-3 flex-wrap">
@@ -558,13 +561,12 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                       </span>
                     </div>
 
-                    <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                    <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400 font-sans">
                       {result.reasonText}
                     </p>
                   </div>
 
-                  {/* Transition Flow and Savings */}
-                  <div className="flex items-center justify-between md:justify-end gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-4 md:pt-0 md:border-t-0">
+                  <div className="flex items-center justify-between md:justify-end gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-4 md:pt-0 md:border-t-0 font-sans">
                     <div className="flex items-center gap-4 text-xs font-semibold text-zinc-400 dark:text-zinc-600">
                       <div className="text-right">
                         <p className="text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500">Current</p>
@@ -582,7 +584,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                           ${(input.monthlySpend - result.monthlySavings).toFixed(2)}/mo
                         </p>
                         <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500">
-                          ({result.recommendedAction === 'switch_tool' || result.recommendedAction === 'already_optimal' || result.recommendedAction === 'keep' ? input.seats : input.seats} seats, {result.recommendedPlan})
+                          ({input.seats} seats, {result.recommendedPlan})
                         </p>
                       </div>
                     </div>
@@ -599,8 +601,10 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             })}
           </div>
         </div>
+        {/* endregion */}
 
       </main>
     </div>
   );
 }
+// endregion
