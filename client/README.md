@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WiseBill AI — Client Frontend (Next.js)
 
-## Getting Started
+The frontend application for WiseBill AI is built with **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS**, and **Redux Toolkit** with `redux-persist`.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🏗️ Folder Structure
+
+```text
+client/
+├── public/
+│   └── widget.js            # Embeddable script for bloggers & external sites
+├── src/
+│   ├── app/
+│   │   ├── api/og/route.tsx # Dynamic Open Graph (1200x630) image generator
+│   │   ├── audit/[slug]/    # Shareable audit results page & layout metadata
+│   │   ├── widget/          # Standalone widget page for iframe embeds
+│   │   ├── layout.tsx       # Root layout enforcing font-sans typography
+│   │   └── page.tsx         # Audit creation homepage & SpendInputForm container
+│   ├── components/
+│   │   ├── audit/           # ToolPicker, SubscriptionCard & subcomponents
+│   │   └── SpendInputForm.tsx # Primary form with Redux persistence & referral banner
+│   ├── services/
+│   │   ├── api.ts           # Centralized Axios client with interceptors
+│   │   └── audit.ts         # Audit & Lead API service wrappers
+│   ├── store/
+│   │   ├── index.ts         # Redux store with SSR-safe noop storage & autoMergeLevel2
+│   │   └── slices/          # Redux audit slice
+│   └── types/               # TypeScript interfaces for audit, pricing, and leads
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🎨 Design & Styling Rules
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Typography:** Uses `--font-sans` (`Inter` / system sans-serif) applied globally across all pages and components.
+- **Color Palette:** Tailored HSL Hues (`brand-purple-600`, sleek dark mode, glassmorphism card styling).
+- **Single-Line Comments:** All JSX and TypeScript files strictly follow single-line comment conventions (`// ...`) and `// region` / `// endregion` blocks.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ⚡ Development Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Install dependencies
+npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Start local Next.js dev server (http://localhost:3000)
+npm run dev
 
-## Deploy on Vercel
+# Run TypeScript type check
+npx tsc --noEmit
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔗 Key Endpoints & Features
+
+- **`/`**: Main Audit input flow with referral banner (`?ref=...`).
+- **`/audit/[slug]`**: Unique public audit report with dynamic Twitter Card & Open Graph `<meta>` tags.
+- **`/widget`**: Lightweight iframe audit view.
+- **`/api/og`**: Edge runtime dynamic social preview card image generator.

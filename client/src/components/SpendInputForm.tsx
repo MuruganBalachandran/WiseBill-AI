@@ -1,3 +1,4 @@
+// region imports
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -12,71 +13,95 @@ import { AuditInput } from '@/types/audit';
 import { PricingConfig } from '@/types/pricing';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+// endregion
 
+// region types and constants
 type SpendInputFormProps = {
   onAudit: (inputs: AuditInput[], honeypot: string) => void;
 };
 
 const DEFAULT_GLOBAL_SETTINGS = { teamSize: 10 };
+// endregion
 
-// The form coordinates persisted inputs; tool display and subscription fields stay in focused child components.
+// region component
 export function SpendInputForm({ onAudit }: SpendInputFormProps) {
+  // region state
   const dispatch = useDispatch();
   const inputs = useSelector((state: RootState) => state.audit.inputs);
   const globalSettings = useSelector((state: RootState) => state.audit.globalSettings ?? DEFAULT_GLOBAL_SETTINGS);
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
   const [website, setWebsite] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [refCode, setRefCode] = useState<string | null>(null);
+  // endregion
 
-  // Fetch the same server-owned plan catalogue used by the audit engine.
+  // region referral detection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) setRefCode(ref);
+    }
+  }, []);
+  // endregion
+
+  // region pricing config fetch
   useEffect(() => {
     getPricingConfig()
       .then(data => setPricing(data as PricingConfig))
       .catch(() => setLoadError('We could not load the tool catalogue. Refresh and try again.'));
   }, []);
+  // endregion
 
-  // Upgrade pre-existing browser storage from the former display-name based form format.
+  // region inputs normalization
   useEffect(() => {
     if (!pricing || inputs.length === 0) return;
     const normalizedInputs = inputs.map(input => ({ ...input, tool: normalizeToolId(input.tool), planName: normalizePlanId(input.planName) }));
     const changed = normalizedInputs.some((input, index) => input.tool !== inputs[index].tool || input.planName !== inputs[index].planName);
     if (changed) dispatch(updateInputs(normalizedInputs));
   }, [dispatch, inputs, pricing]);
+  // endregion
 
-  // Calculate the visible stack total without storing derived state.
+  // region calculations
   const currentMonthlySpend = useMemo(
     () => inputs.reduce((total, input) => total + (Number(input.monthlySpend) || 0), 0),
     [inputs],
   );
+  // endregion
 
-  // Add a selected tool with a sensible plan and list-price starting point.
+  // region handlers
   const handleAddTool = (tool: string) => {
     if (!pricing) return;
     dispatch(updateInputs([...inputs, createSubscription(tool, globalSettings.teamSize, pricing)]));
   };
 
-  // Keep every edit immutable so Redux persistence remains dependable across reloads.
   const handleInputChange = (index: number, field: keyof AuditInput, value: string | number) => {
     const nextInputs = inputs.map((input, inputIndex) => inputIndex === index ? { ...input, [field]: value } : input);
     dispatch(updateInputs(nextInputs));
   };
 
-  // Remove only the selected subscription; users may add it again if they need another plan.
   const handleRemoveTool = (index: number) => dispatch(updateInputs(inputs.filter((_, inputIndex) => inputIndex !== index)));
 
-  // Submit normalized team context alongside each subscription for the existing audit API.
   const handleSubmit = () => {
     const finalInputs = inputs.map(input => ({ ...input, teamSize: globalSettings.teamSize }));
     onAudit(finalInputs, website);
   };
+  // endregion
 
-  if (loadError) return <p role="alert" className="py-10 text-center text-sm text-destructive">{loadError}</p>;
-  if (!pricing) return <p className="py-10 text-center text-sm text-muted-foreground">Loading your tool catalogue…</p>;
+  if (loadError) return <p role="alert" className="py-10 text-center text-sm text-destructive font-sans">{loadError}</p>;
+  if (!pricing) return <p className="py-10 text-center text-sm text-muted-foreground font-sans">Loading your tool catalogue…</p>;
 
   const availableTools = Object.keys(pricing);
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-8">
+    <div className="mx-auto w-full max-w-4xl space-y-8 font-sans">
+      {/* referral code perk banner */}
+      {refCode && (
+        <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 text-center text-xs font-medium text-indigo-700 dark:text-indigo-300 font-sans shadow-sm">
+          🎁 You were referred by <strong>{refCode}</strong>! Run your audit to unlock a free 1-on-1 enterprise stack consultation.
+        </div>
+      )}
+
       <div className="space-y-2 text-center">
         <p className="text-sm font-semibold uppercase tracking-wider text-brand-purple-600">AI spend audit</p>
         <h2 className="text-3xl font-bold tracking-tight text-foreground">Build your AI stack in under a minute</h2>
@@ -112,8 +137,9 @@ export function SpendInputForm({ onAudit }: SpendInputFormProps) {
       </section>
 
       <div className="space-y-3 pt-1 text-center">
+        {/* honeypot field for bot protection */}
         <input type="text" name="website" value={website} onChange={event => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute h-px w-px overflow-hidden opacity-0" />
-        <button type="button" onClick={handleSubmit} disabled={inputs.length === 0} className="w-full rounded-xl bg-brand-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-brand-purple-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
+        <button type="button" onClick={handleSubmit} disabled={inputs.length === 0} className="w-full rounded-xl bg-brand-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-brand-purple-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto font-sans">
           Run my free audit
         </button>
         <p className="text-xs text-muted-foreground">No login required. Your work is saved on this device.</p>
@@ -121,3 +147,4 @@ export function SpendInputForm({ onAudit }: SpendInputFormProps) {
     </div>
   );
 }
+// endregion

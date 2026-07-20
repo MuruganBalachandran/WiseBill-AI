@@ -1,65 +1,99 @@
-# WiseBill AI
+# WiseBill AI — SaaS Spend Auditor
 
-An AI spend audit tool: paste in what your team pays for Cursor, Copilot, Claude, ChatGPT, and friends, and get an instant, defensible breakdown of where you're overpaying, what to switch to, and how much you'd save monthly and annually.
+WiseBill AI is a financial optimization application for engineering and product teams. Input your team's active subscriptions (Cursor, GitHub Copilot, Claude, ChatGPT, Gemini, v0, API direct spend) to get an instant, defensible breakdown of overpaying areas, cheaper plan alternatives, and total monthly/annual savings.
 
-Built for founders and small teams who've never once compared their AI tool bill against what they actually use it for.
+---
 
-## Demo Video
-*(Required for Round 1 submission)*
-👉 **[Watch the 30-Second App Demo here](https://loom.com/insert-your-link-here)**
+## 🚀 Key Features
 
-## Screenshots
+- **Feature 1: Spend Input Form:** Dynamic tool picker with seat count, monthly spend, and plan selections powered by Redux Toolkit & `redux-persist`.
+- **Feature 2: Deterministic Audit Engine:** Pure TypeScript financial logic calculating plan fit, seat minimum overages (Claude Team 5-seat floor, ChatGPT Team 2-seat floor), tool redundancy (Cursor + Copilot), API vs. Team plan breakeven, and startup credit advisories.
+- **Feature 3: Audit Results Page:** High-impact visual report featuring monthly/annual savings hero banners, Peer Benchmark indicators ($/dev/mo vs. $110 industry avg), Techvruk high-savings CTA (> $500/mo), and honest low-savings guidance (< $100/mo).
+- **Feature 4: AI-Generated Executive Summary:** Uses the **Anthropic API** (`claude-3-5-sonnet-20241022`) with Gemini/OpenAI fallbacks and a 5-second `AbortController` timeout for deterministic fallback summaries. Prompt specs in `PROMPTS.md`.
+- **Feature 5: Lead Capture & Transactional Email:** Real MongoDB storage linked to audit records, dual-layer abuse protection (hidden UI Honeypot + IP Rate Limiter), and Resend API transactional emails.
+- **Feature 6: Shareable Result URLs & Viral Loop:** Public `/audit/[slug]` URLs with PII (email, company) strictly stripped, dynamic Open Graph & Twitter cards (`/api/og`), 1-click URL copy, and social share buttons.
+- **Bonus Features:**
+  - 🖨️ **Native PDF Export:** Browser-native `window.print()` with custom `@media print` rules.
+  - 🧩 **Embeddable Widget:** `<script src="https://wisebill.ai/widget.js" data-container="wisebill-widget"></script>` for external blogs/websites.
+  - 📊 **Benchmark Mode:** Per-developer spend vs. industry average.
+  - 🎁 **Referral Rewards:** Referral parameter support (`?ref=YOUR_CODE`) unlocking free 1-on-1 optimization sessions with Techvruk.
+  - 📢 **Launch Pitch:** Complete Twitter thread and Product Hunt blog post in `LAUNCH_PITCH.md`.
 
-*(Screenshots will be added here post-deployment)*
+---
 
-## Quick start
+## 🛠️ Tech Stack & Architecture
 
+- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS, Redux Toolkit, `redux-persist`.
+- **Backend:** Express.js, TypeScript (`tsx`), Node.js.
+- **Database:** MongoDB (Mongoose schemas for `Audit` & `Lead`).
+- **Services:** Anthropic API (Claude), Google Gemini API, OpenAI API, Resend API.
+
+---
+
+## ⚡ Quick Start
+
+### 1. Clone & Install
 ```bash
-# clone and install
-git clone <repo-url>
-cd wisebill-ai
-
-# server
-cd server && npm install && npm run dev
-
-# client (separate terminal)
-cd client && npm install && npm run dev
+git clone https://github.com/MuruganBalachandran/WiseBill-AI.git
+cd WiseBill-AI
 ```
 
-Environment variables needed:
-**Server (`server/.env`)**
-- `PORT` (default 5000)
-- `MONGODB_URI`
-- `ANTHROPIC_API_KEY` (optional; a templated summary is used when absent)
-- `GEMINI_API_KEY` or `OPENAI_API_KEY` (optional fallback providers)
-- `RESEND_API_KEY`
+### 2. Backend Setup
+```bash
+cd server
+npm install
+npm run dev
+```
 
-**Client (`client/.env.local`)**
-- `NEXT_PUBLIC_API_URL` (default `http://localhost:5000/api`)
-- `NEXT_PUBLIC_APP_URL` (default `http://localhost:3000`)
-- `NEXT_PUBLIC_CONSULTATION_URL` (optional scheduling URL shown after a high-savings lead is captured)
+### 3. Frontend Setup (Separate Terminal)
+```bash
+cd client
+npm install
+npm run dev
+```
 
-## Deploy
+---
 
-- Frontend: Vercel
-- Backend: Render
-- Primary Database: MongoDB Atlas (Free Tier)
+## 🔑 Environment Variables
 
-Live demo: *(Deployed URL to be added after Vercel/Render setup)*
+### Server (`server/.env`)
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://...
+ANTHROPIC_API_KEY=sk-ant-... (preferred LLM provider)
+GEMINI_API_KEY=... (optional fallback)
+OPENAI_API_KEY=... (optional fallback)
+RESEND_API_KEY=re_...
+CLIENT_URL=http://localhost:3000
+```
 
-## Decisions
+### Client (`client/.env.local`)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_CONSULTATION_URL=https://calendly.com/...
+```
 
-1. **Architecture: Next.js App Router for Frontend, Express for Backend**
-   Next.js was chosen for its SEO capabilities (dynamic Open Graph images via `next/og` and Server Components for metadata injection) which are critical for the viral share loop. Express was chosen for the backend to keep the API layer fully decoupled, making it easier to integrate complex rate-limiting, honeypots, and complex data modeling without fighting serverless edge runtime limitations.
+---
 
-2. **Database Strategy: MongoDB Document Store**
-   MongoDB handles the complex, nested JSON structure of the audit engine inputs natively without heavy relational mapping, making it the ideal primary datastore.
+## 🧪 Testing & Quality Assurance
 
-3. **Abuse Protection: Honeypot + IP Rate Limiting over CAPTCHA**
-   hCaptcha adds massive friction to conversion rates on lead capture forms. We opted for a hidden honeypot field (to trap dumb bots) combined with strict IP-based rate limiting (`express-rate-limit`) to protect the Anthropic API credits and database without hurting the user experience for legitimate visitors.
+```bash
+# Run server unit tests
+cd server
+npm test
 
-4. **Audit Immutability: Computed Once on Creation**
-   Audits are computed once and stored in the database, rather than recomputed on each page load. This ensures that when a user shares their audit link 6 months from now, the savings math remains completely stable and accurate to the exact day they ran it, even if underlying SaaS pricing tiers change.
+# Run TypeScript checks
+cd server && npx tsc --noEmit
+cd client && npx tsc --noEmit
+```
 
-5. **PDF Export: Native Browser Print over Heavy Libraries**
-   Rather than bloat the frontend bundle with `jspdf` or `html2pdf.js`, we leveraged native `window.print()` combined with a robust `@media print` CSS block. This provides a clean, perfectly formatted document for finance teams with zero JavaScript overhead.
+---
+
+## 📖 Key Documentation Files
+
+- **`PROMPTS.md`**: AI executive summary system/user prompts & fallback templates.
+- **`PRICING_DATA.md`**: Verified pricing numbers and official URL sources for all AI tools.
+- **`LAUNCH_PITCH.md`**: Product Hunt launch blog post, Twitter thread, and widget embed snippet.
+- **`ARCHITECTURE.md`**: Mermaid sequence diagram, system design, and 10k audit scaling strategy.
+- **`DEVLOG.md`**: Engineering log tracking progress and technical learnings.
