@@ -6,12 +6,13 @@ import { ILead } from '../types/index.js';
 // region lead schema
 const LeadSchema: Schema = new Schema(
   {
+    auditId: { type: String, required: true },
     email: { type: String, required: true },
-    companyName: { type: String },
-    role: { type: String },
-    teamSize: { type: Number },
-    savingsPotential: { type: Number },
-    createdAt: { type: Date, default: Date.now },
+    companyName: { type: String, default: null },
+    role: { type: String, default: null },
+    teamSize: { type: Number, default: null },
+    savingsPotential: { type: Number, default: 0 },
+    emailSent: { type: Boolean, default: false },
   },
   {
     timestamps: true,
