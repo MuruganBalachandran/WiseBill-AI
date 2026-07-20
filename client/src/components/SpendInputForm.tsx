@@ -32,17 +32,12 @@ export function SpendInputForm({ onAudit }: SpendInputFormProps) {
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
   const [website, setWebsite] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [refCode, setRefCode] = useState<string | null>(null);
-  // endregion
-
-  // region referral detection
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get('ref');
-      if (ref) setRefCode(ref);
-    }
-  }, []);
+  // Lazy initializer reads the ?ref= query param once on mount — no effect needed,
+  // which avoids the react-hooks/set-state-in-effect lint warning.
+  const [refCode] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return new URLSearchParams(window.location.search).get('ref');
+  });
   // endregion
 
   // region pricing config fetch

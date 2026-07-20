@@ -5,13 +5,17 @@ import auditReducer from './slices/auditSlice';
 
 const createNoopStorage = () => {
   return {
-    getItem(_key: any) {
+    // Returns null because there is no real storage in SSR context
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getItem(_key: string) {
       return Promise.resolve(null);
     },
-    setItem(_key: any, value: any) {
+    // Resolves with the value so redux-persist does not throw
+    setItem(_key: string, value: unknown) {
       return Promise.resolve(value);
     },
-    removeItem(_key: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    removeItem(_key: string) {
       return Promise.resolve();
     },
   };

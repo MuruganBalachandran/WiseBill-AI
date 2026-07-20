@@ -1,5 +1,6 @@
 import { apiClient } from '../lib/axios';
 import { IAudit, IAuditCreateRequest, IApiResponse } from '../types/audit';
+import { PricingConfig } from '../types/pricing';
 
 export const createAudit = async (payload: IAuditCreateRequest): Promise<IAudit> => {
   const response = await apiClient.post<IApiResponse<IAudit>>('/api/audits', payload);
@@ -12,8 +13,8 @@ export const createAudit = async (payload: IAuditCreateRequest): Promise<IAudit>
   return data.data;
 };
 
-export const getPricingConfig = async (): Promise<any> => {
-  const response = await apiClient.get<IApiResponse<any>>('/api/audits/pricing');
+export const getPricingConfig = async (): Promise<PricingConfig> => {
+  const response = await apiClient.get<IApiResponse<PricingConfig>>('/api/audits/pricing');
   const data = response.data;
 
   if (!data.success || !data.data) {

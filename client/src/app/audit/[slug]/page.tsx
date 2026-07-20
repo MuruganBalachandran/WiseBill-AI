@@ -53,22 +53,33 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
   // endregion
 
   // region data fetching
+  // Reset loading to true on slug change — setState is intentional here (derived UI state reset).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (slug) setLoading(true);
+  }, [slug]);
+
+  // Fetch the audit data asynchronously — all setState calls are inside callbacks.
   useEffect(() => {
     if (!slug) return;
 
-    setLoading(true);
+    let cancelled = false;
+
     getAuditBySlug(slug)
       .then(data => {
+        if (cancelled) return;
         setAudit(data);
         setError(null);
+        setLoading(false);
       })
       .catch(err => {
+        if (cancelled) return;
         console.error('Error fetching audit details:', err);
-        setError(err.message || 'Audit not found or server is unreachable.');
-      })
-      .finally(() => {
+        setError((err as { message?: string }).message || 'Audit not found or server is unreachable.');
         setLoading(false);
       });
+
+    return () => { cancelled = true; };
   }, [slug]);
   // endregion
 
@@ -239,7 +250,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
             </div>
 
             <p className="text-sm leading-relaxed font-medium text-zinc-700 dark:text-zinc-300 relative z-10 italic font-sans">
-              "{aiSummary}"
+              &ldquo;{aiSummary}&rdquo;
             </p>
           </div>
         )}
@@ -429,7 +440,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 You’re Spending Well!
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-sans">
-                Excellent management! Our optimization engine analyzed your stack and confirmed your subscription levels align cleanly with your team size and use cases. We don't manufacture fake savings. You're already running an optimized stack.
+                Excellent management! Our optimization engine analyzed your stack and confirmed your subscription levels align cleanly with your team size and use cases. We don&apos;t manufacture fake savings. You&apos;re already running an optimized stack.
               </p>
             </div>
 
@@ -438,7 +449,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
                 <div className="text-center py-4 space-y-2">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto text-lg font-bold">✓</div>
                   <h4 className="font-bold text-zinc-900 dark:text-zinc-50">Subscribed Successfully!</h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans">We'll alert you if rates change or new features apply to your stack.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans">We&apos;ll alert you if rates change or new features apply to your stack.</p>
                 </div>
               ) : (
                 <form onSubmit={handleLeadSubmit} className="space-y-4">

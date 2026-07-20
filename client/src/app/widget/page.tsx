@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { SpendInputForm } from "@/components/SpendInputForm";
-import { AuditInput } from "@/types/audit";
+import { AuditInput, ISpendInput } from "@/types/audit";
 import { createAudit } from "@/services/audit";
 // endregion
 
@@ -41,7 +41,8 @@ export default function WidgetPage() {
     setIsAuditing(true);
 
     const spendInputs = inputs.map(i => ({
-      toolId: (TOOL_MAP[i.tool] || "cursor") as any,
+      // Cast through the union type — TOOL_MAP guarantees valid values at runtime
+      toolId: (TOOL_MAP[i.tool] || "cursor") as ISpendInput["toolId"],
       plan: i.planName,
       monthlySpend: i.monthlySpend,
       seats: i.seats,
@@ -75,7 +76,7 @@ export default function WidgetPage() {
           </div>
           <h3 className="text-xl font-bold">Audit Complete!</h3>
           <p className="text-muted-foreground text-sm font-sans">
-            We've analyzed your stack. Click below to view your personalized savings report.
+            We&apos;ve analyzed your stack. Click below to view your personalized savings report.
           </p>
           <a 
             href={`${process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')}/audit/${slug}`}

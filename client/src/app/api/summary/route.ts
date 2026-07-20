@@ -17,7 +17,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ summary: fallbackSummary });
     }
 
-    const toolRecommendationsList = results.map((r: any) => 
+    // Typed shape for each audit result item used in prompt building
+    interface AuditResultItem {
+      tool: string;
+      currentSpend: number;
+      recommendedAction: string;
+      reason: string;
+    }
+
+    const toolRecommendationsList = results.map((r: AuditResultItem) =>
       `- ${r.tool} (Current: $${r.currentSpend}): ${r.recommendedAction}. ${r.reason}`
     ).join("\n");
 

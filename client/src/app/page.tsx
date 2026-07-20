@@ -1,6 +1,7 @@
 // region imports
 "use client";
 
+import Image from "next/image";
 import { SpendInputForm } from "../components/SpendInputForm";
 import { AuditInput } from "../types/audit";
 import { useAudit } from "../hooks/useAudit";
@@ -46,10 +47,12 @@ export default function Home() {
           {/* Right Image Content - Decorative Abstract Graphic */}
           <div className="relative animate-in fade-in slide-in-from-right-8 duration-700 z-10 hidden md:flex justify-center items-center">
             <div className="absolute inset-0 bg-gradient-to-tr from-brand-purple-600/5 to-brand-blue-600/5 blur-3xl -z-10 rounded-full w-full h-3/4"></div>
-            <img 
-              src="/hero_abstract_illustration.png" 
-              alt="AI Cost Savings Illustration" 
-              className="w-full max-w-xl aspect-[5/4] object-cover mix-blend-multiply dark:mix-blend-normal drop-shadow-sm hover:scale-105 transition-transform duration-500"
+            <Image
+              src="/hero_abstract_illustration.png"
+              alt="AI Cost Savings Illustration"
+              width={576}
+              height={461}
+              className="w-full max-w-xl object-cover mix-blend-multiply dark:mix-blend-normal drop-shadow-sm hover:scale-105 transition-transform duration-500"
             />
           </div>
         </div>
@@ -65,7 +68,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight mb-2">Build Your AI Stack</h2>
-            <p className="text-muted-foreground">Add the tools your team uses below. We'll analyze your spending against current benchmarks.</p>
+            <p className="text-muted-foreground">Add the tools your team uses below. We&apos;ll analyze your spending against current benchmarks.</p>
           </div>
 
           <div className="bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-2xl border border-border/50 p-6 md:p-8 shadow-xl">
