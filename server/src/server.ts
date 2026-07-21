@@ -10,7 +10,7 @@ const startServer = async () => {
   await connectToDatabase();
 
   // Set the port
-  const PORT = env?.port ?? 5000;
+  const PORT = process.env.PORT || env?.port || 5000;
 
   // Start the server
   app.listen(PORT, () => {
