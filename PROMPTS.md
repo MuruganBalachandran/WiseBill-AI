@@ -43,7 +43,23 @@ INSTRUCTIONS:
 
 ---
 
-## 2. LLM Provider Hierarchy & Timeout Strategy
+## 2. Why We Wrote Prompts This Way
+
+1. **Strict Output Formatting Constraints:** Financial decision-makers want a clean, single-paragraph executive summary without conversational fluff (e.g., *"Sure! Here is your audit summary:"*). Rule #5 explicitly forbids markdown headers, bullet lists, or greetings.
+2. **Focus on Primary Source of Waste:** Rather than listing every minor optimization, Rule #2 instructs the LLM to zero in on the single highest-impact savings opportunity (e.g., overlapping Cursor + Copilot seats or phantom seat floor minimums) to create an immediate "aha!" moment for leadership.
+3. **Deterministic Math Injection:** Audit results, current spend, and annual savings numbers are pre-calculated by the TypeScript engine and injected directly into the prompt variables `${totalMonthlySavings}` and `${totalAnnualSavings}` so the LLM never attempts to perform arithmetic.
+
+---
+
+## 3. What We Tried That Didn't Work
+
+- **Attempt 1: Multi-paragraph markdown reports with bullet points.** The LLM generated verbose 400-word summaries that duplicated the structured table UI below the hero card. Users found it redundant.
+- **Attempt 2: Allowing the LLM to compute savings numbers.** When provided raw tool lists and asked to calculate total savings, the model occasionally hallucinated seat pricing tiers or misapplied annual discount formulas. We moved 100% of mathematical logic into the pure TypeScript engine.
+- **Attempt 3: Unbounded response timeouts.** Default fetch requests without timeouts caused UI hangs when API keys faced rate-limiting. Adding a strict 5-second `AbortController` timeout resolved latency issues completely.
+
+---
+
+## 4. LLM Provider Hierarchy & Timeout Strategy
 
 The service attempts LLM generation in the following priority order, protected by a **5-second `AbortController` timeout**:
 
@@ -54,7 +70,7 @@ The service attempts LLM generation in the following priority order, protected b
 
 ---
 
-## 3. Fallback Mechanism (`aiSummaryFallbackUsed: true`)
+## 5. Fallback Mechanism (`aiSummaryFallbackUsed: true`)
 
 If no API key is set, or if an API call times out / encounters a network error, the system seamlessly falls back to a deterministic, high-quality template summary:
 

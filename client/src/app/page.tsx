@@ -1,14 +1,12 @@
 // region imports
 "use client";
 
-import Image from "next/image";
 import { SpendInputForm } from "../components/SpendInputForm";
 import { AuditInput } from "../types/audit";
 import { useAudit } from "../hooks/useAudit";
 // endregion
 
 // region page component
-
 export default function Home() {
   // region hooks & handlers
   const { runAudit, isAuditing, error } = useAudit();
@@ -44,16 +42,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Image Content - Decorative Abstract Graphic */}
+          {/* Right Logo Content - Stylized Hero Logo matching Header */}
           <div className="relative animate-in fade-in slide-in-from-right-8 duration-700 z-10 hidden md:flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand-purple-600/5 to-brand-blue-600/5 blur-3xl -z-10 rounded-full w-full h-3/4"></div>
-            <Image
-              src="/hero_abstract_illustration.png"
-              alt="AI Cost Savings Illustration"
-              width={576}
-              height={461}
-              className="w-full max-w-xl object-cover mix-blend-multiply dark:mix-blend-normal drop-shadow-sm hover:scale-105 transition-transform duration-500"
-            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-brand-purple-600/20 to-brand-blue-600/20 blur-3xl -z-10 rounded-full w-3/4 h-3/4"></div>
+            <div className="relative flex flex-col items-center justify-center p-12 rounded-3xl bg-white/60 dark:bg-black/40 border border-zinc-200/80 dark:border-zinc-800/50 backdrop-blur-xl shadow-2xl space-y-4 hover:scale-105 transition-transform duration-500">
+              <div className="w-20 h-20 rounded-2xl bg-brand-purple-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg shadow-brand-purple-600/30">
+                WB
+              </div>
+              <span className="text-4xl font-extrabold tracking-tighter text-brand-purple-600">
+                WiseBill AI
+              </span>
+              <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase bg-brand-purple-600/10 px-3 py-1 rounded-full">
+                SaaS AI Spend Auditor
+              </span>
+            </div>
           </div>
         </div>
 
