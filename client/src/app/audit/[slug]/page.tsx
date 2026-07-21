@@ -163,7 +163,7 @@ export default function AuditPage({ params }: { params: Promise<{ slug: string }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans transition-colors duration-150 pb-24">
-      <main className="max-w-6xl mx-auto px-6 mt-12 space-y-8">
+      <main className="max-w-6xl mx-auto px-6 mt-12 space-y-7">
         
         {/* region hero banner section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

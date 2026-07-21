@@ -1,6 +1,7 @@
 // region imports
 "use client";
 
+import Image from "next/image";
 import { SpendInputForm } from "../components/SpendInputForm";
 import { AuditInput } from "../types/audit";
 import { useAudit } from "../hooks/useAudit";
@@ -21,10 +22,10 @@ export default function Home() {
       
       {/* Centered Typography Hero Section */}
       <section className="min-h-[calc(100vh-4rem)] flex items-center relative bg-app-grid">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full pb-20">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center w-full pb-20">
           
           {/* Left Text Content */}
-          <div className="space-y-8 animate-in fade-in slide-in-from-left-8 duration-700 z-10">
+          <div className="md:col-span-5 space-y-8 animate-in fade-in slide-in-from-left-8 duration-700 z-10">
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
               Stop Overpaying for <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple-600 to-brand-blue-600">AI Tools</span>
@@ -42,19 +43,17 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Logo Content - Stylized Hero Logo matching Header */}
-          <div className="relative animate-in fade-in slide-in-from-right-8 duration-700 z-10 hidden md:flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand-purple-600/20 to-brand-blue-600/20 blur-3xl -z-10 rounded-full w-3/4 h-3/4"></div>
-            <div className="relative flex flex-col items-center justify-center p-12 rounded-3xl bg-white/60 dark:bg-black/40 border border-zinc-200/80 dark:border-zinc-800/50 backdrop-blur-xl shadow-2xl space-y-4 hover:scale-105 transition-transform duration-500">
-              <div className="w-20 h-20 rounded-2xl bg-brand-purple-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg shadow-brand-purple-600/30">
-                WB
-              </div>
-              <span className="text-4xl font-extrabold tracking-tighter text-brand-purple-600">
-                WiseBill AI
-              </span>
-              <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase bg-brand-purple-600/10 px-3 py-1 rounded-full">
-                SaaS AI Spend Auditor
-              </span>
+          {/* Right Hero Illustration (6:4 aspect ratio, wider footprint) */}
+          <div className="md:col-span-7 relative animate-in fade-in slide-in-from-right-8 duration-700 z-10 hidden md:flex justify-center items-center">
+            <div className="absolute inset-0 bg-gradient-to-tr from-brand-purple-600/20 to-brand-blue-600/20 blur-3xl -z-10 rounded-full w-full h-full"></div>
+            <div className="relative w-full aspect-[6/4] rounded-3xl overflow-hidden shadow-2xl border border-zinc-200/80 dark:border-zinc-800/50 hover:scale-[1.02] transition-transform duration-500">
+              <Image
+                src="/hero_abstract_illustration.png"
+                alt="WiseBill AI SaaS Spend Auditor Illustration"
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
           </div>
         </div>
@@ -67,7 +66,7 @@ export default function Home() {
 
       {/* Main Audit Section */}
       <section id="audit-section" className="min-h-screen py-24 px-6 md:px-12 bg-white dark:bg-black/50">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight mb-2">Build Your AI Stack</h2>
             <p className="text-muted-foreground">Add the tools your team uses below. We&apos;ll analyze your spending against current benchmarks.</p>

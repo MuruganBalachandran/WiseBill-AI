@@ -10,7 +10,7 @@ export function Header() {
 
   return (
     <header className="w-full border-b border-zinc-200 dark:border-zinc-800/40 bg-white/70 dark:bg-black/50 backdrop-blur-md sticky top-0 z-50 transition-colors duration-150">
-      <div className={`mx-auto px-6 h-16 flex items-center justify-between ${isAuditPage ? 'max-w-6xl' : 'max-w-7xl'}`}>
+      <div className="mx-auto px-6 h-16 flex items-center justify-between max-w-7xl">
         {/* LOGO */}
         <div 
           className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-80" 
