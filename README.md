@@ -55,11 +55,11 @@ npm run dev
 APP_CONFIG={"db":{"uri":"mongodb://localhost:27017/billwiseai"},"port":5000,"geminiApiKey":"YOUR_GEMINI_KEY","resend":{"apiKey":"re_YOUR_KEY","fromEmail":"onboarding@resend.dev"},"clientUrl":"http://localhost:3000"}
 ```
 
-### Client (`client/.env.local`)
+### Client (`client/.env`)
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_CONSULTATION_URL=https://calendly.com/...
+NEXT_PUBLIC_CONSULTATION_URL=https://calendly.com/... (optional)
 ```
 
 ---
