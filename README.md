@@ -6,15 +6,11 @@ WiseBill AI is an automated financial optimization platform designed for enginee
 
 ---
 
-## 📷 Screenshots
+## 🎥 Product Demo Video
 
-| Audit Stack Builder | High-Savings Executive Report |
-| :---: | :---: |
-| ![Stack Builder](https://raw.githubusercontent.com/MuruganBalachandran/WiseBill-AI/main/client/public/hero.png) | ![Audit Report](https://raw.githubusercontent.com/MuruganBalachandran/WiseBill-AI/main/client/public/sleek_purple_dashboard.png) |
+[![WiseBill AI Product Walkthrough](https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0)](https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0)
 
-| Per-Tool Optimization Breakdown | Widget & Share Preview |
-| :---: | :---: |
-| ![Tool Breakdown](https://raw.githubusercontent.com/MuruganBalachandran/WiseBill-AI/main/client/public/light_purple_dashboard.png) | ![Widget View](https://raw.githubusercontent.com/MuruganBalachandran/WiseBill-AI/main/client/public/hero_abstract_illustration.png) |
+> 📹 **Watch Full Walkthrough Video:** [https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0](https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0)
 
 ---
 
