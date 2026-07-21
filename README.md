@@ -2,15 +2,7 @@
 
 WiseBill AI is an automated financial optimization platform designed for engineering managers, VPs of Engineering, and CTOs at seed to Series B tech startups. It analyzes active AI tool subscriptions (Cursor, GitHub Copilot, Claude, ChatGPT, Gemini, v0, API direct spend) to deliver instant, defensible audits revealing seat bloat, plan downgrades, tool redundancy, and projected annual savings.
 
-**Live Deployed URL:** [https://wisebill-ai.vercel.app](https://wisebill-ai.vercel.app)
-
----
-
-## 🎥 Product Demo Video
-
-[![WiseBill AI Product Walkthrough](https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0)](https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0)
-
-> 📹 **Watch Full Walkthrough Video:** [https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0](https://github.com/user-attachments/assets/ea44dc10-9bd5-4978-94c4-f65e039b64e0)
+**Live Deployed URL:** [https://wisebill-ai.onrender.com](https://wisebill-ai.onrender.com)
 
 ---
 
