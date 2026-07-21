@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// The base URL can be defined in .env, falling back to local server for dev
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Read base URL from .env (NEXT_PUBLIC_API_URL), stripping trailing /api or slashes for clean endpoint joining
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const baseURL = rawUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
 
 export const apiClient = axios.create({
   baseURL,

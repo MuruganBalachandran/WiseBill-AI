@@ -67,7 +67,8 @@ export const createLead = async (payload: ILeadCreateRequest): Promise<ILead> =>
 };
 export type { IAudit };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
+const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/$/, '')}/api`;
 
 /**
  * Fetches an audit by its slug from the backend for use in Server Components.
